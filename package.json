@@ -1,0 +1,19 @@
+{
+  "name": "portuguese-app",
+  "version": "0.0.0",
+  "private": true,
+  "description": "AI-native Fluent Forever-style Brazilian Portuguese learning app",
+  "packageManager": "[email protected]",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "echo 'cd apps/mobile && pnpm dev'",
+    "test": "echo 'TODO: wire up vitest'",
+    "typecheck": "echo 'TODO: wire up tsc'",
+    "lint": "echo 'TODO: wire up eslint'",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {},
+  "dependencies": {}
+}
