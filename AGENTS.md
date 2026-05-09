@@ -43,6 +43,7 @@ glossary.
 Non-negotiable. If a task seems to require violating one, stop and ask.
 
 ### Data model
+
 - **Lemmas exist at V0** to prevent duplicate cards across word forms.
   Cards reference `lemma_id`. When creating a card, deduplicate by
   lemma — don't create a second card for the same lemma.
@@ -53,6 +54,7 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
   purpose, current usage, and which version activates them.
 
 ### Code structure
+
 - **Feature folders** under `apps/mobile/src/features/`. Loose imports
   across features at V0; barrel boundaries enforced at V2.
 - **Pure logic in `lib/`, types in `domain/`, I/O in `providers/`.**
@@ -63,6 +65,7 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
   `card-generation-pipeline.ts` — not `utils.ts`, `helpers.ts`).
 
 ### Provider boundaries
+
 - TTS, image search, LLM, and audio storage are accessed only via
   interfaces in `apps/mobile/src/providers/`. Concrete implementations
   are swappable.
@@ -70,6 +73,7 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
   provider boundary.
 
 ### Error handling
+
 - **Data boundaries use `Result<T, E>`** from `@/domain/result`. UI
   code may throw for ergonomics; AI outputs, network calls, parsing,
   and sync operations always return Result.
@@ -79,6 +83,7 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
   defines its own error union.
 
 ### AI usage
+
 - AI is for content unique to the user's state (i+1 sentences,
   card-field generation). Curated content (when added) is never
   AI-generated at runtime.
@@ -92,22 +97,25 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
 ## Code Conventions
 
 ### TypeScript
+
 - Strict mode + `noUncheckedIndexedAccess`. No `any` unless explicitly
   justified in a comment.
 - **Domain types over inline shapes.** Import from `@/domain`, don't
   redefine.
 - **Discriminated unions over flag fields.** `type Card = WordCard |
-  SentenceCard`, not `Card { kind: string, ... }`.
+SentenceCard`, not `Card { kind: string, ... }`.
 - **Branded types for IDs** where ambiguity is real.
 - **`Result<T, E>`** at every data boundary.
 
 ### Naming
+
 - Files match the concept: `lemma.ts`, not `lemma-types.ts`.
 - Folders match the domain: `features/cards/`, not `features/c/`.
 - Boolean fields prefixed `is_` / `has_` (DB) / `is` / `has` (TS).
 - Constants over magic numbers/strings.
 
 ### Comments and JSDoc
+
 - Every exported type and function has JSDoc with one-sentence
   purpose. Add params/returns/edge cases when non-obvious.
 - Non-trivial functions include an example:
@@ -115,10 +123,22 @@ Non-negotiable. If a task seems to require violating one, stop and ask.
 - Schema "future use" fields explain why they exist now.
 
 ### Avoid
+
 - Premature abstraction. A function called twice doesn't need
   extracting.
 - Clever patterns. If reading takes more than a few seconds, simplify.
 - `any`, `as` casts, `// @ts-ignore`. If you need them, comment why.
+
+---
+
+## Communication Style
+
+- **Terse by default.** No preamble, no recap, no filler.
+- Bullets and tables over prose.
+- End every response with one line:
+  `Status: ✅ Done | 🛑 Awaiting input | ⚠️ Partial`
+- Inline markers: 🛑 blocking question, ❓ decision needed, ⚠️ warning.
+- Verbose only for: plans awaiting approval, ADRs, debugging sessions.
 
 ---
 
@@ -144,6 +164,7 @@ tractability — then they get decomposed and moved to active work.
 Test what would hurt to break. Skip the rest.
 
 ### Always test
+
 - **Pure logic.** `lib/` and any logic-bearing `domain/` modules.
   FSRS scheduler, validation helpers, Result utilities.
 - **Data boundaries.** AI output validation (Zod), DB serialization,
@@ -152,11 +173,13 @@ Test what would hurt to break. Skip the rest.
   appears in tomorrow's review queue."
 
 ### Don't test
+
 - UI component rendering details
 - External API responses (mock the provider boundary instead)
 - AI-generated content quality (eyeball it)
 
 ### Tools
+
 - Vitest for unit tests
 - Detox or Maestro (TBD) for flow smoke tests
 - Tests in `tests/unit/` mirroring `src/`, plus `tests/flows/`
@@ -166,6 +189,7 @@ Test what would hurt to break. Skip the rest.
 ## Working with GitHub
 
 ### Issues
+
 - Use `gh issue create` for any bug, feature, or ADR-needed
   encountered outside the current task scope. **Don't silently fix
   unrelated bugs.** File the issue, link it, decide later.
@@ -177,6 +201,7 @@ Test what would hurt to break. Skip the rest.
 - Issues auto-populate to the GitHub Project board.
 
 ### Branches and commits
+
 - Conventional Commits enforced via commitlint:
   - `feat:` new feature
   - `fix:` bug fix
@@ -184,17 +209,19 @@ Test what would hurt to break. Skip the rest.
   - `docs:` documentation
   - `refactor:` no behavior change
   - `test:` adding tests
-- Commit messages explain *why*, not just *what*. Reference issue
+- Commit messages explain _why_, not just _what_. Reference issue
   numbers (`fix: handle null IPA in card display (#42)`).
 - Branch off `main`, PR back to `main`. Branch protection requires
   CI green.
 
 ### PRs
+
 - Use the PR template at `.github/pull_request_template.md`.
 - One logical change per PR where possible.
 - Self-review before merging.
 
 ### Releases
+
 - `release-please` runs on every push to `main`. It opens a release
   PR. Merge that PR to ship a release.
 - CHANGELOG.md is auto-generated. Don't edit it manually.
@@ -237,11 +264,13 @@ ideas and brainstorms, ranked by likelihood of shipping. AI tools
 must follow these rules when interacting with it:
 
 ### Reading
+
 - READ relevant sections for context when working on related code.
 - The "Why not yet" section often explains the rationale for a V0
   decision — useful when someone (human or AI) is about to undo it.
 
 ### Adding new ideas
+
 Use this exact format. Each idea is a top-level `## ` heading so
 the file can be split mechanically into per-idea files later if
 needed.
@@ -255,12 +284,15 @@ needed.
 **Related:** other idea names, ADR numbers
 
 ### What
+
 One paragraph: what the feature is.
 
 ### Why it might be worth doing
+
 Bullet list of actual user value or competitive angle.
 
 ### Why not yet
+
 Bullet list: complexity, dependencies, scope discipline,
 "haven't validated need" — the honest reason it's deferred.
 ```
@@ -283,12 +315,14 @@ Tier reflects a mix of factors:
 When unsure, err toward a lower tier. Ideas earn their way up.
 
 ### Re-ranking
+
 When new information changes an idea's tractability (new library,
 new API, new technique that makes it cheap), move it up. Note the
 change in the "Why not yet" section so the rationale trail stays
 visible. Don't silently delete or rewrite history — append context.
 
 ### Building from ideas
+
 **Don't.** No idea graduates to active work without an ADR being
 written first. The ADR captures the actual decision (now we're
 building it, here's why now, here's the approach) — the idea
