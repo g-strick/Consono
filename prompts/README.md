@@ -1,6 +1,7 @@
 # Prompts
 
 Versioned AI prompts. Per AGENTS.md "AI usage" rules:
+
 - Every LLM output is validated through a Zod schema before use.
 - Prompts live here as files, not as inline strings.
 
@@ -43,7 +44,7 @@ export type PromptDefinition<TInput, TOutput> = {
 
 ## Folder structure
 
-```
+```text
 prompts/
 ├── card-generation/
 │   ├── extract-lemma-from-word.ts       # word → lemma + metadata

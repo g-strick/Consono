@@ -39,20 +39,24 @@ audio generated exactly once across all users.
 ## Consequences
 
 ### Positive
+
 - Multi-client consistency straightforward
 - Cross-user audio dedup (significant cost savings)
 - New clients (V2 native shells) get same data with no extra work
 - Centralized backups and analytics
 
 ### Negative
+
 - Network needed for first-time use of new content
 - Sync queue / conflict resolution requires care
 - Hosting costs from V0
 - Serverless-friendly DB choice constrains some patterns
 
 ### Neutral
+
 - Last-write-wins fine at V0 (single user); will need revisiting if
   multi-device write collisions become real
 
 ## References
+
 - ADR 0001 (Expo + RN + RN Web)

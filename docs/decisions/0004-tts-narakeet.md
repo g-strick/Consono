@@ -52,6 +52,7 @@ switching feature).
 ## Consequences
 
 ### Positive
+
 - Pay-per-minute pricing aligns with side-project economics
 - Commercial license is clean (no usage restrictions on generated
   audio when source text is owned)
@@ -59,14 +60,17 @@ switching feature).
 - Architecture ready for multi-provider A/B testing
 
 ### Negative
+
 - Async job model adds slight complexity (polling) vs streaming
 - Single voice at V0; users can't pick — deferred to a later version
 
 ### Neutral
+
 - ElevenLabs / Azure / Coqui can each be added later as additional
   provider implementations behind the same interface
 
 ## References
+
 - ADR 0002 (permissive licensing — proprietary acceptable, swappable)
 - ADR 0003 (audio caching)
 - ADR 0005 (provider boundaries)

@@ -22,7 +22,7 @@ discriminator: `'word'` or `'sentence'`.
 beginner, C2 ≈ near-native.
 
 **Cognate** — word in another language sharing a root or borrowing
-with the target word. *Português* / *Portuguese*. Cognates are
+with the target word. _Português_ / _Portuguese_. Cognates are
 leverage for learners who know related languages.
 
 **Conventional Commits** — commit message format
@@ -34,11 +34,11 @@ Used at V2 to produce native iOS and Android binaries for App Store /
 Play Store submission.
 
 **False friend** — a word that looks like a cognate but means
-something different. Spanish *embarazada* (pregnant) vs Portuguese
-*embaraçada* (embarrassed).
+something different. Spanish _embarazada_ (pregnant) vs Portuguese
+_embaraçada_ (embarrassed).
 
-**Form** — a surface form of a lemma. *falo*, *falas*, *falando* are
-forms of the lemma *falar*. No forms table at V0.
+**Form** — a surface form of a lemma. _falo_, _falas_, _falando_ are
+forms of the lemma _falar_. No forms table at V0.
 
 **FSRS (Free Spaced Repetition Scheduler)** — modern open-source SRS
 algorithm based on a three-component memory model (stability,
@@ -55,7 +55,7 @@ later version.
 **L1** — user's native language(s). A user can have multiple L1s.
 
 **Lemma** — dictionary headword. The unit at which mastery is
-tracked. *falar* is a lemma; *falo*, *falas*, *falava* are forms of
+tracked. _falar_ is a lemma; _falo_, _falas_, _falava_ are forms of
 it. At V0, every card is anchored to a lemma to prevent duplicate
 cards across word forms.
 
@@ -66,8 +66,8 @@ app.
 **Register** — the social/contextual flavor of a word: formal,
 neutral, informal, slang, vulgar. Tagged on V0 word cards.
 
-**Sense** — a specific meaning of a lemma. *banco* (bank) and
-*banco* (bench) are senses of the same lemma. No senses table at V0;
+**Sense** — a specific meaning of a lemma. _banco_ (bank) and
+_banco_ (bench) are senses of the same lemma. No senses table at V0;
 polysemy handled by creating separate cards as needed.
 
 **SRS (Spaced Repetition System)** — algorithm that schedules review
@@ -81,13 +81,13 @@ primary stress in a word. AI-populated on V0 word cards.
 **TTS (Text-to-Speech)** — generating speech audio from text. V0:
 Narakeet, accessed through the swappable TTS provider boundary.
 
-**tu / você** — second-person pronouns in Portuguese. *Você*
-dominates in Brazil, *tu* in some southern and northeastern regions.
-V0 hardcodes *você* + 3rd-person singular conjugation.
+**tu / você** — second-person pronouns in Portuguese. _Você_
+dominates in Brazil, _tu_ in some southern and northeastern regions.
+V0 hardcodes _você_ + 3rd-person singular conjugation.
 
 **Usage context** — short phrase or list of phrases describing where
 or when a word is typically used. AI-populated on V0 word cards.
-Example: *feijoada* → "restaurante, almoço".
+Example: _feijoada_ → "restaurante, almoço".
 
 **Variant** — regional or stylistic variety of a language.
 Architecturally, variant is a property of content, not a code branch.

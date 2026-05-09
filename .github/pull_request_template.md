@@ -1,19 +1,25 @@
 ## Summary
+
 <!-- One paragraph: what changed and why. -->
 
 ## Related issues
+
 <!-- Closes #N, refs #M. -->
 
 ## Type
+
 <!-- feat / fix / chore / docs / refactor / test -->
 
 ## Testing
+
 <!-- What was tested. New tests added? Manual verification? -->
 
 ## Screenshots
+
 <!-- For UI changes. -->
 
 ## Checklist
+
 - [ ] Tests pass locally (`make check`)
 - [ ] Conventional Commit format used
 - [ ] No new copyleft dependencies

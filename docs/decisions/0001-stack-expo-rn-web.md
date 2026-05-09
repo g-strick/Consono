@@ -30,20 +30,24 @@ App Store and Play Store distribution at V2.
 ## Consequences
 
 ### Positive
+
 - Single codebase for iOS, Android, web from V0
 - React Native background applies directly
 - EAS Build removes native-build infrastructure work
 - Excellent AI tooling support for React/RN
 
 ### Negative
+
 - RN Web on desktop is functional but second-class
 - Mobile feel ~95% of native, not 100%
 - Locked into the RN ecosystem for the iOS app's lifetime
 
 ### Neutral
+
 - Expo managed workflow until/unless a native module isn't in Expo's
   catalog. Bare workflow is the escape hatch.
 
 ## References
+
 - ADR 0003 (cloud-first sync)
 - ADR 0005 (provider boundary architecture)

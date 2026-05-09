@@ -34,18 +34,22 @@ data exists.
 ## Consequences
 
 ### Positive
+
 - State-of-the-art scheduling from V0
 - Open-source, permissively licensed
 - Compatible with modern Anki — easier interop for V1 export
 - Per-user parameter tuning available V2+
 
 ### Negative
+
 - Slightly more complex card state than SM-2
 - Less battle-tested than SM-2 in the wild — risk low
 
 ### Neutral
+
 - Review log retention forever — small cost, worth it for parameter
   optimization
 
 ## References
-- https://github.com/open-spaced-repetition/fsrs
+
+- <https://github.com/open-spaced-repetition/fsrs>

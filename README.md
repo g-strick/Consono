@@ -29,7 +29,7 @@ make check        # typecheck + lint + test
 
 ## Repository Layout
 
-```
+```text
 .
 ├── apps/mobile/          # Expo + RN + RN Web app
 ├── packages/             # reserved for shared code (V1+)

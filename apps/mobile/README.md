@@ -8,7 +8,7 @@ equivalent) during the V0 toolchain setup milestone. See
 
 ## Expected structure (post-init)
 
-```
+```text
 apps/mobile/
 ├── app/                # Expo Router file-based routes
 ├── src/

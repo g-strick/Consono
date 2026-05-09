@@ -16,6 +16,8 @@ jobs:
         with:
           node-version-file: '.nvmrc'
 
+      - run: corepack enable
+
       - uses: pnpm/action-setup@v3
         with:
           version: 9
@@ -34,6 +36,9 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
+      - name: Format check
+        run: pnpm format:check
+
       - name: Type check
         run: pnpm typecheck
 
@@ -41,10 +46,10 @@ jobs:
         run: pnpm lint
 
       - name: Markdown lint
-        run: pnpm exec markdownlint "**/*.md" --ignore node_modules --ignore CHANGELOG.md
+        run: pnpm mdlint
 
       - name: Spell check
-        run: pnpm exec cspell "**/*.{ts,tsx,md}" --no-progress
+        run: pnpm spellcheck
 
       - name: Test
         run: pnpm test

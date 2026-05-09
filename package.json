@@ -1,19 +1,49 @@
 {
   "name": "portuguese-app",
-  "version": "0.0.0",
-  "private": true,
   "description": "AI-native Fluent Forever-style Brazilian Portuguese learning app",
-  "packageManager": "[email protected]",
+  "version": "0.0.0",
+  "devDependencies": {
+    "@commitlint/cli": "^19",
+    "@commitlint/config-conventional": "^19",
+    "@types/node": "^22",
+    "@vitest/coverage-v8": "^3",
+    "cspell": "^8",
+    "eslint": "^9",
+    "eslint-config-prettier": "^9",
+    "husky": "^9",
+    "lint-staged": "^15",
+    "markdownlint-cli": "^0.44",
+    "prettier": "^3",
+    "syncpack": "^13",
+    "tsx": "^4",
+    "typescript": "5.9.3",
+    "typescript-eslint": "^8",
+    "vitest": "^3"
+  },
   "engines": {
     "node": ">=22"
   },
-  "scripts": {
-    "dev": "echo 'cd apps/mobile && pnpm dev'",
-    "test": "echo 'TODO: wire up vitest'",
-    "typecheck": "echo 'TODO: wire up tsc'",
-    "lint": "echo 'TODO: wire up eslint'",
-    "format": "prettier --write ."
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{js,cjs,mjs,json,yaml,yml,md}": "prettier --write"
   },
-  "devDependencies": {},
-  "dependencies": {}
+  "packageManager": "pnpm@9.15.4",
+  "private": true,
+  "scripts": {
+    "dev": "cd apps/mobile && corepack pnpm dev",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "lint": "eslint .",
+    "mdlint": "markdownlint \"**/*.md\" --ignore node_modules --ignore CHANGELOG.md",
+    "prepare": "husky",
+    "spellcheck": "cspell \"**/*.{ts,tsx,md}\" --no-progress",
+    "syncpack:fix": "syncpack fix-mismatches",
+    "syncpack:lint": "syncpack lint",
+    "test": "vitest run",
+    "test:coverage": "vitest run --coverage",
+    "typecheck": "corepack pnpm -r --parallel --if-present run typecheck"
+  }
 }

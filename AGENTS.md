@@ -271,7 +271,7 @@ must follow these rules when interacting with it:
 
 ### Adding new ideas
 
-Use this exact format. Each idea is a top-level `## ` heading so
+Use this exact format. Each idea is a top-level `##` heading so
 the file can be split mechanically into per-idea files later if
 needed.
 

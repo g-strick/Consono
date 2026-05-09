@@ -9,7 +9,7 @@ Four external service categories may need swapping: LLM (Claude/GPT),
 TTS (Narakeet/ElevenLabs/Azure), image search (Google/Bing), audio
 storage (S3/R2). Per ADR 0002, proprietary OK but no vendor lock-in.
 
-Full DI ceremony for *every* dependency is over-engineering for solo.
+Full DI ceremony for _every_ dependency is over-engineering for solo.
 
 ## Decision
 
@@ -38,19 +38,23 @@ require an ADR.
 ## Consequences
 
 ### Positive
+
 - TTS swappable (V2+ to open-source) with minimal app changes
 - LLM swappable / upgradable without ripples
 - Tests run without external dependencies
 - Clear boundary for license auditing and cost tracking
 
 ### Negative
+
 - One layer of indirection on every call to four services
 - Discipline required: contributors and AI tools must use interface
 
 ### Neutral
+
 - New service categories need ADR — prevents abstraction sprawl
 
 ## References
+
 - ADR 0004 (TTS strategy)
 - ADR 0003 (audio storage as provider)
 - AGENTS.md "Provider boundaries"
