@@ -9,6 +9,11 @@ Personal daily driver → potential public product later.
 
 See `docs/specs/v0.md` for the full V0 scope.
 
+## Prerequisites
+
+- **Node.js 22.x** — match `.nvmrc` (e.g. `nvm use`, `fnm install && fnm use`, or install 22.x manually).
+- **Corepack** — run once: `corepack enable`. The repo pins `pnpm` via `packageManager` in root `package.json`; Corepack runs that version (same idea as `corepack pnpm` in the `Makefile`).
+
 ## Stack
 
 - Expo + React Native + React Native Web (single codebase, mobile primary)

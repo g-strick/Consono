@@ -2,8 +2,13 @@
         ingest-frequency prewarm-audio validate-prompts \
         clean
 
+# Use Corepack so `make` works when `pnpm` is not on PATH (matches root package.json).
+PNPM ?= corepack pnpm
+
 help:
 	@echo "Brazilian Portuguese Learning App — V0"
+	@echo ""
+	@echo "Prerequisites: Node 22.x (see .nvmrc), run: corepack enable"
 	@echo ""
 	@echo "Setup:"
 	@echo "  make install            Install all dependencies"
@@ -25,38 +30,38 @@ help:
 	@echo "  make clean              Remove build artifacts"
 
 install:
-	pnpm install
+	$(PNPM) install
 
 dev:
-	cd apps/mobile && pnpm dev
+	cd apps/mobile && $(PNPM) dev
 
 test:
-	pnpm test
+	$(PNPM) test
 
 typecheck:
-	pnpm typecheck
+	$(PNPM) typecheck
 
 lint:
-	pnpm lint
-	pnpm exec markdownlint "**/*.md" --ignore node_modules --ignore CHANGELOG.md
-	pnpm exec cspell "**/*.{ts,tsx,md}" --no-progress
+	$(PNPM) lint
+	$(PNPM) exec markdownlint "**/*.md" --ignore node_modules --ignore CHANGELOG.md
+	$(PNPM) exec cspell "**/*.{ts,tsx,md}" --no-progress
 
 format:
-	pnpm exec prettier --write .
+	$(PNPM) exec prettier --write .
 
 check: typecheck lint test
 
 pre-commit:
-	pnpm exec lint-staged
+	$(PNPM) exec lint-staged
 
 ingest-frequency:
-	pnpm exec tsx scripts/ingest-frequency.ts
+	$(PNPM) exec tsx scripts/ingest-frequency.ts
 
 prewarm-audio:
-	pnpm exec tsx scripts/prewarm-audio-cache.ts
+	$(PNPM) exec tsx scripts/prewarm-audio-cache.ts
 
 validate-prompts:
-	pnpm exec tsx scripts/validate-prompts.ts
+	$(PNPM) exec tsx scripts/validate-prompts.ts
 
 clean:
 	rm -rf node_modules dist build .expo coverage
