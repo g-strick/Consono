@@ -21,7 +21,8 @@ export async function extractWordFields(word: string): Promise<WordFieldsOutput>
   const response = await fetch(ENDPOINT, {
     method: 'POST',
     headers: {
-      Authorization: `Bearer ${apiKey}`,
+      'x-api-key': apiKey,
+      'anthropic-version': '2023-06-01',
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
