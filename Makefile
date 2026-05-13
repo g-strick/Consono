@@ -1,5 +1,6 @@
 .PHONY: help install dev test typecheck lint format check pre-commit \
         ingest-frequency prewarm-audio validate-prompts \
+        db-generate db-migrate db-studio \
         clean
 
 # Use Corepack so `make` works when `pnpm` is not on PATH (matches root package.json).
@@ -20,6 +21,11 @@ help:
 	@echo "  make lint               Lint code + markdown + spelling"
 	@echo "  make format             Format with Prettier"
 	@echo "  make check              typecheck + lint + test (CI runs this)"
+	@echo ""
+	@echo "Database (requires DATABASE_URL in .env for migrate/studio):"
+	@echo "  make db-generate        Generate SQL migration from schema changes"
+	@echo "  make db-migrate         Apply pending migrations to Supabase DB"
+	@echo "  make db-studio          Open Drizzle Studio DB browser"
 	@echo ""
 	@echo "Data:"
 	@echo "  make ingest-frequency   Rebuild frequency list from corpus"
@@ -62,6 +68,15 @@ prewarm-audio:
 
 validate-prompts:
 	$(PNPM) exec tsx scripts/validate-prompts.ts
+
+db-generate:
+	cd packages/db && $(PNPM) exec drizzle-kit generate
+
+db-migrate:
+	cd packages/db && $(PNPM) exec drizzle-kit migrate
+
+db-studio:
+	cd packages/db && $(PNPM) exec drizzle-kit studio
 
 clean:
 	rm -rf node_modules dist build .expo coverage
