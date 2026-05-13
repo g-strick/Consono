@@ -1,5 +1,6 @@
 import { synthesize } from '../apps/mobile/src/providers/tts.js';
 import { searchImages } from '../apps/mobile/src/providers/image-search.js';
+import { extractWordFields } from '../apps/mobile/src/providers/llm.js';
 
 const word = process.argv[2];
 if (!word) {
@@ -8,7 +9,12 @@ if (!word) {
 }
 
 void (async () => {
-  const [audio, images] = await Promise.all([synthesize(word), searchImages(word)]);
+  const fields = await extractWordFields(word);
 
-  console.log(JSON.stringify({ word, audio, images }, null, 2));
+  const [audio, images] = await Promise.all([
+    synthesize(fields.lemma),
+    searchImages(fields.image_search_query),
+  ]);
+
+  console.log(JSON.stringify({ fields, audio, images }, null, 2));
 })();
