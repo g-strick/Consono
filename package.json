@@ -34,7 +34,7 @@
     ],
     "*.{js,cjs,mjs,json,yaml,yml,md}": "prettier --write"
   },
-  "packageManager": "pnpm@9.15.4",
+  "packageManager": "pnpm@11.1.2",
   "private": true,
   "scripts": {
     "dev": "cd apps/mobile && corepack pnpm dev",
