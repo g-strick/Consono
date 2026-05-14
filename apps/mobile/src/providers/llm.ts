@@ -10,7 +10,7 @@ const MODEL = 'google/gemini-2.5-flash-lite';
 function extractJson(raw: string): string {
   // Gemini sometimes wraps JSON in ```json ... ``` fences — strip them
   const fenced = raw.match(/```(?:json)?\s*([\s\S]*?)```/);
-  if (fenced) return fenced[1].trim();
+  if (fenced) return (fenced[1] ?? '').trim();
   return raw.trim();
 }
 
