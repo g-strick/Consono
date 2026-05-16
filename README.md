@@ -1,7 +1,6 @@
-# Brazilian Portuguese Learning App
+# LingoCards
 
-AI-native Fluent Forever-style language learning, Brazilian Portuguese first.
-Personal daily driver → potential public product later.
+AI-native Brazilian Portuguese learning app — Fluent Forever-style, personal daily driver first.
 
 ## Status
 
@@ -9,57 +8,139 @@ Personal daily driver → potential public product later.
 
 See `docs/specs/v0.md` for the full V0 scope.
 
-## Prerequisites
-
-- **Node.js 22.x** — match `.nvmrc` (e.g. `nvm use`, `fnm install && fnm use`, or install 22.x manually).
-- **Corepack** — run once: `corepack enable`. The repo pins `pnpm` via `packageManager` in root `package.json`; Corepack runs that version (same idea as `corepack pnpm` in the `Makefile`).
-
 ## Stack
 
-- Expo + React Native + React Native Web (single codebase, mobile primary)
-- TypeScript strict + Drizzle ORM + PostgreSQL
-- Cloud-first architecture (clients are caches)
-- FSRS for spaced repetition
-- Narakeet for TTS (swappable via provider boundary)
-- Claude or GPT for AI card generation (swappable)
+| Layer             | Tech                                        |
+| ----------------- | ------------------------------------------- |
+| Mobile            | Expo SDK 54 · React Native · Expo Router v6 |
+| Styling           | NativeWind v4 (Tailwind)                    |
+| Server state      | TanStack Query v5                           |
+| API server        | Hono on Node.js (port 3000)                 |
+| Database          | Drizzle ORM · PostgreSQL (Supabase)         |
+| Spaced repetition | FSRS via ts-fsrs                            |
+| LLM               | OpenRouter → Gemini 2.5 Flash Lite          |
+| TTS               | Narakeet (voice: Felipe)                    |
+| Image search      | Pexels                                      |
+
+## Prerequisites
+
+- **Node.js 22.x** — `nvm use` or `fnm install && fnm use`
+- **pnpm 11** — `npm install -g pnpm@11` (repo pins via `packageManager`)
+- **Expo Go** — install on your iOS or Android device from the App Store / Play Store
+- **`.env` file** — copy `.env.example` and fill in secrets (see below)
+
+## Environment Variables
+
+Create `.env` in the repo root:
+
+```bash
+# Database
+DATABASE_URL=postgresql://...
+
+# LLM
+OPENROUTER_API_KEY=sk-or-...
+
+# TTS
+NARAKEET_API_KEY=...
+
+# Image search
+PEXELS_API_KEY=...
+```
+
+`EXPO_PUBLIC_API_URL` is set per-session (see Quick Start below) — no need in `.env`.
 
 ## Quick Start
 
+Install once:
+
 ```bash
-make install      # install all dependencies
-make dev          # run mobile app in dev mode
-make test         # run unit + flow tests
-make check        # typecheck + lint + test
+pnpm install
+pnpm approve-builds   # approve esbuild build scripts (one-time, interactive)
+```
+
+Then open **two terminals**:
+
+**Terminal 1 — API server:**
+
+```bash
+make api
+# or: cd apps/api && pnpm dev
+# Runs on http://localhost:3000
+# Verify: http://localhost:3000/health → {"ok":true}
+```
+
+**Terminal 2 — Expo / Metro:**
+
+```bash
+make mobile
+# or: cd apps/mobile && EXPO_PUBLIC_API_URL=http://<your-local-ip>:3000 pnpm start
+```
+
+> **Tip:** Use your machine's LAN IP (e.g. `192.168.1.x`), not `localhost`, so your phone can reach the API over Wi-Fi.
+
+**On your phone:**
+
+1. Open **Expo Go**
+2. Tap **Scan QR Code**
+3. Scan the QR printed by Metro in Terminal 2
+
+## Other Make Targets
+
+```bash
+make install        # install all dependencies
+make api            # start API server (port 3000)
+make mobile         # start Expo / Metro bundler
+make test           # run unit tests
+make typecheck      # TypeScript type check (all packages)
+make lint           # ESLint + markdownlint + cspell
+make format         # Prettier
+make check          # typecheck + lint + test (what CI runs)
+make db-generate    # generate SQL migration from schema changes
+make db-migrate     # apply pending migrations
+make db-studio      # open Drizzle Studio
+make api-seed       # seed the V0 hardcoded user row
 ```
 
 ## Repository Layout
 
 ```text
 .
-├── apps/mobile/          # Expo + RN + RN Web app
-├── packages/             # reserved for shared code (V1+)
-├── prompts/              # versioned AI prompts
+├── apps/
+│   ├── api/              # Hono API server (card generation, FSRS reviews, audio)
+│   └── mobile/           # Expo app (Expo Router, NativeWind, TanStack Query)
+├── packages/
+│   └── db/               # Drizzle ORM schema + Supabase Postgres connection
+├── prompts/              # versioned AI prompts (card generation)
 ├── data/                 # source data (frequency lists, word lists)
-├── scripts/              # one-off utilities, kept forever
+├── scripts/              # one-off utilities
 ├── docs/
 │   ├── specs/            # active specs (v0.md is the working spec)
 │   ├── decisions/        # ADRs (load-bearing decisions only)
-│   ├── ideas/            # future ideas, brainstorms (read but not built)
+│   ├── ideas/            # future ideas, brainstorms
 │   ├── runbooks/         # how-to guides
 │   └── glossary.md       # domain terms
 ├── AGENTS.md             # AI tool entry point — read first
 └── CHANGELOG.md          # auto-generated by release-please
 ```
 
+## API Routes
+
+| Method | Path           | Description                              |
+| ------ | -------------- | ---------------------------------------- |
+| `GET`  | `/health`      | Health check                             |
+| `POST` | `/generate`    | Generate card draft (LLM + TTS + images) |
+| `POST` | `/cards`       | Approve a pending card draft             |
+| `GET`  | `/cards/due`   | Fetch cards due for review               |
+| `POST` | `/reviews`     | Submit an FSRS review rating             |
+| `GET`  | `/audio/:hash` | Serve cached TTS audio                   |
+
 ## Key Documents
 
 - **AGENTS.md** — entry point for AI coding tools (Claude Code, Cursor, etc.)
 - **docs/specs/v0.md** — V0 spec, the working blueprint
 - **docs/decisions/** — every load-bearing architectural decision
-- **docs/ideas.md** — captured brainstorms; AI tools may read for context but
-  must not auto-implement without an ADR
 - **docs/glossary.md** — lemma, FSRS, i+1, CEFR, etc.
 
 ## License
 
-[TBD — must remain permissive when chosen.]
+TBD — must remain permissive when chosen.

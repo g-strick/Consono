@@ -1,4 +1,4 @@
-.PHONY: help install dev test typecheck lint format check pre-commit \
+.PHONY: help install dev mobile test typecheck lint format check pre-commit \
         ingest-frequency prewarm-audio validate-prompts \
         db-generate db-migrate db-studio \
         api api-seed \
@@ -15,16 +15,15 @@ help:
 	@echo "Setup:"
 	@echo "  make install            Install all dependencies"
 	@echo ""
-	@echo "Development:"
-	@echo "  make dev                Start mobile app in dev mode"
-	@echo "  make test               Run unit + flow tests"
+	@echo "Development (run api + mobile in separate terminals):"
+	@echo "  make api                Start API server (port 3000)"
+	@echo "  make mobile             Start Expo / Metro bundler (scan QR in Expo Go)"
+	@echo "  make test               Run unit tests"
 	@echo "  make typecheck          Run TypeScript type checker"
 	@echo "  make lint               Lint code + markdown + spelling"
 	@echo "  make format             Format with Prettier"
 	@echo "  make check              typecheck + lint + test (CI runs this)"
 	@echo ""
-	@echo "API:"
-	@echo "  make api                Start API server (port 3000)"
 	@echo "  make api-seed           Seed the hardcoded V0 user row"
 	@echo ""
 	@echo "Database (requires DATABASE_URL in .env for migrate/studio):"
@@ -43,8 +42,10 @@ help:
 install:
 	$(PNPM) install
 
-dev:
-	cd apps/mobile && $(PNPM) dev
+dev: mobile
+
+mobile:
+	cd apps/mobile && $(PNPM) start
 
 test:
 	$(PNPM) test
