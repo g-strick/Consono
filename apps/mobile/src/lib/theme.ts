@@ -10,9 +10,9 @@ export const colors = {
   oledElevated: '#0A1422',
 
   surfaces: {
-    light: { bg: '#FFFFFF', text: '#000000', muted: 'rgba(0,0,0,0.60)' },
+    light: { bg: '#FFFFFF', text: '#0F2547', muted: '#5A6995' },
     color: { bg: '#1F3494', text: '#FFFFFF', muted: 'rgba(255,255,255,0.75)' },
-    oled: { bg: '#000000', text: '#FFFFFF', muted: 'rgba(255,255,255,0.70)' },
+    oled: { bg: '#000000', text: '#E5EAF5', muted: '#7A8AB0' },
   },
 } as const;
 
