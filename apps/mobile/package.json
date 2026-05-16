@@ -2,6 +2,7 @@
   "name": "@portuguese-app/mobile",
   "version": "0.0.0",
   "main": "expo-router/entry",
+  "type": "module",
   "private": true,
   "scripts": {
     "start": "expo start",
