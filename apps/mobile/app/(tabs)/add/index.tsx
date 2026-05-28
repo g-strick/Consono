@@ -35,6 +35,7 @@ export default function AddScreen() {
     },
     onError: () => {
       setStep('input');
+      // error displayed via generateMutation.error below
     },
   });
 
@@ -124,8 +125,10 @@ export default function AddScreen() {
           onModeToggle={() => {
             setMode((m) => (m === 'word' ? 'sentence' : 'word'));
             setInputText('');
+            generateMutation.reset();
           }}
           onGenerate={handleGenerate}
+          error={generateMutation.error?.message}
         />
       )}
 
@@ -184,12 +187,14 @@ function InputStep({
   onInputChange,
   onModeToggle,
   onGenerate,
+  error,
 }: {
   mode: Mode;
   inputText: string;
   onInputChange: (t: string) => void;
   onModeToggle: () => void;
   onGenerate: () => void;
+  error?: string;
 }) {
   const inputRef = useRef<TextInput>(null);
 
@@ -214,11 +219,18 @@ function InputStep({
         onSubmitEditing={onGenerate}
       />
 
-      <TouchableOpacity onPress={onModeToggle} className="mt-4 mb-8">
+      <TouchableOpacity onPress={onModeToggle} className="mt-4 mb-6">
         <Text className="text-brand text-sm">
           {mode === 'word' ? 'or paste a sentence to switch flow →' : '← switch to add a word'}
         </Text>
       </TouchableOpacity>
+
+      {error && (
+        <View className="bg-red-50 border border-red-200 rounded-xl px-4 py-3 mb-4">
+          <Text className="text-red-600 text-xs font-semibold mb-1">Generation failed</Text>
+          <Text className="text-red-500 text-xs">{error}</Text>
+        </View>
+      )}
 
       <TouchableOpacity
         onPress={onGenerate}

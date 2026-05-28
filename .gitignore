@@ -53,3 +53,20 @@ drizzle/.snapshot/
 *.local
 *.mp3
 response.json
+
+# ── GSD baseline (auto-generated) ──
+.gsd
+.gsd-id
+.mcp.json
+.bg-shell/
+*~
+*.code-workspace
+.env.*
+__pycache__/
+*.pyc
+.venv/
+venv/
+target/
+vendor/
+.cache/
+tmp/
