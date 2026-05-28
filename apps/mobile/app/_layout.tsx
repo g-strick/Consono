@@ -2,13 +2,19 @@ import '../global.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { Audio } from 'expo-av';
 import { ThemeContext, Surface } from '@/src/lib/theme';
 
 const queryClient = new QueryClient();
 
 export default function RootLayout() {
   const [surface, setSurface] = useState<Surface>('light');
+
+  useEffect(() => {
+    // Allow audio to play on iOS even when the mute switch is on.
+    Audio.setAudioModeAsync({ playsInSilentModeIOS: true }).catch(() => {});
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>

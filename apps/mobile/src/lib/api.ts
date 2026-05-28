@@ -1,4 +1,20 @@
-const BASE = process.env['EXPO_PUBLIC_API_URL'] ?? 'http://localhost:3000';
+import Constants from 'expo-constants';
+
+function resolveApiBase(): string {
+  if (process.env['EXPO_PUBLIC_API_URL']) return process.env['EXPO_PUBLIC_API_URL'];
+  // In dev, Expo's hostUri is the LAN IP of the dev machine (e.g. "192.168.1.5:8081").
+  // Using it avoids the localhost-doesn't-work-on-device problem.
+  if (__DEV__) {
+    const hostUri = Constants.expoConfig?.hostUri;
+    if (hostUri) {
+      const host = hostUri.split(':')[0];
+      return `http://${host}:3000`;
+    }
+  }
+  return 'http://localhost:3000';
+}
+
+const BASE = resolveApiBase();
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -62,7 +78,10 @@ export const api = {
     return request<GenerateDraft>('/generate', {
       method: 'POST',
       body: JSON.stringify({ input_text, kind }),
-    });
+    }).then((data) => ({
+      ...data,
+      draft: { ...data.draft, audio_url: `${BASE}${data.draft.audio_url}` },
+    }));
   },
 
   approveCard(body: {
@@ -84,7 +103,13 @@ export const api = {
   },
 
   getDueCards() {
-    return request<{ cards: DueCard[] }>('/cards/due');
+    return request<{ cards: DueCard[] }>('/cards/due').then(({ cards }) => ({
+      cards: cards.map((c) => ({
+        ...c,
+        audio_url: c.audio_url ? `${BASE}${c.audio_url}` : null,
+        sentence_audio_url: c.sentence_audio_url ? `${BASE}${c.sentence_audio_url}` : null,
+      })),
+    }));
   },
 
   submitReview(card_id: number, rating: Rating, duration_ms?: number) {
