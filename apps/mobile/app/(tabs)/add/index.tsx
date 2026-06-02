@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { api, CardKind, GenerateDraft, ImageResult } from '@/src/lib/api';
@@ -19,6 +20,7 @@ type Step = 'input' | 'loading' | 'pick-image' | 'pick-sentence' | 'review' | 's
 
 export default function AddScreen() {
   const queryClient = useQueryClient();
+  const tabBarHeight = useBottomTabBarHeight();
   const [mode, setMode] = useState<Mode>('word');
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState('');
@@ -90,7 +92,7 @@ export default function AddScreen() {
   };
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-white" edges={['top', 'left', 'right']}>
       {/* Nav bar */}
       {step !== 'saved' && (
         <View className="flex-row items-center justify-between px-5 pt-2 pb-3 border-b border-gray-100">
@@ -129,6 +131,7 @@ export default function AddScreen() {
           }}
           onGenerate={handleGenerate}
           error={generateMutation.error?.message}
+          tabBarHeight={tabBarHeight}
         />
       )}
 
@@ -145,6 +148,7 @@ export default function AddScreen() {
             if (!selectedImage) return;
             setStep(mode === 'sentence' ? 'review' : 'pick-sentence');
           }}
+          tabBarHeight={tabBarHeight}
         />
       )}
 
@@ -154,6 +158,7 @@ export default function AddScreen() {
           selected={selectedSentence}
           onSelect={setSelectedSentence}
           onNext={() => setStep('review')}
+          tabBarHeight={tabBarHeight}
         />
       )}
 
@@ -166,6 +171,7 @@ export default function AddScreen() {
           isSaving={approveMutation.isPending}
           error={approveMutation.error?.message}
           onSave={() => approveMutation.mutate()}
+          tabBarHeight={tabBarHeight}
         />
       )}
 
@@ -188,6 +194,7 @@ function InputStep({
   onModeToggle,
   onGenerate,
   error,
+  tabBarHeight,
 }: {
   mode: Mode;
   inputText: string;
@@ -195,11 +202,12 @@ function InputStep({
   onModeToggle: () => void;
   onGenerate: () => void;
   error?: string;
+  tabBarHeight: number;
 }) {
   const inputRef = useRef<TextInput>(null);
 
   return (
-    <View className="flex-1 px-5 pt-8">
+    <View className="flex-1 px-5 pt-8" style={{ paddingBottom: tabBarHeight }}>
       <Text className="text-muted text-xs tracking-widest uppercase mb-4">
         {mode === 'word' ? 'Type a word' : 'Paste a sentence'}
       </Text>
@@ -275,11 +283,13 @@ function PickImageStep({
   selected,
   onSelect,
   onNext,
+  tabBarHeight,
 }: {
   images: ImageResult[];
   selected: ImageResult | null;
   onSelect: (img: ImageResult) => void;
   onNext: () => void;
+  tabBarHeight: number;
 }) {
   return (
     <View className="flex-1">
@@ -288,7 +298,10 @@ function PickImageStep({
         <Text className="text-content text-sm">Tap to select</Text>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ padding: 16 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ padding: 16, paddingBottom: tabBarHeight + 16 }}
+      >
         <View className="flex-row flex-wrap gap-3">
           {images.map((img, i) => {
             const isSelected = selected?.url === img.url;
@@ -298,8 +311,8 @@ function PickImageStep({
                   style={{
                     borderRadius: 12,
                     overflow: 'hidden',
-                    borderWidth: isSelected ? 3 : 0,
-                    borderColor: '#1F3494',
+                    borderWidth: 3,
+                    borderColor: isSelected ? '#1F3494' : 'transparent',
                   }}
                 >
                   <Image
@@ -320,18 +333,16 @@ function PickImageStep({
             );
           })}
         </View>
-      </ScrollView>
 
-      <View className="px-5 pb-6">
         <TouchableOpacity
           onPress={onNext}
           disabled={!selected}
-          className="bg-brand rounded-2xl py-4 items-center"
+          className="bg-brand rounded-2xl py-4 items-center mt-4"
           style={{ opacity: selected ? 1 : 0.4 }}
         >
           <Text className="text-white font-semibold text-base">Next →</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -341,11 +352,13 @@ function PickSentenceStep({
   selected,
   onSelect,
   onNext,
+  tabBarHeight,
 }: {
   candidates: string[];
   selected: string;
   onSelect: (s: string) => void;
   onNext: () => void;
+  tabBarHeight: number;
 }) {
   return (
     <View className="flex-1">
@@ -354,7 +367,10 @@ function PickSentenceStep({
         <Text className="text-content text-sm">i+1 — only words you know, plus the target</Text>
       </View>
 
-      <ScrollView className="flex-1" contentContainerStyle={{ paddingHorizontal: 20, gap: 12 }}>
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 20, gap: 12, paddingBottom: tabBarHeight + 16 }}
+      >
         {candidates.map((sentence, i) => {
           const isSelected = selected === sentence;
           return (
@@ -374,9 +390,7 @@ function PickSentenceStep({
             </Pressable>
           );
         })}
-      </ScrollView>
 
-      <View className="px-5 pb-6 pt-4">
         <TouchableOpacity
           onPress={onNext}
           disabled={!selected}
@@ -385,7 +399,7 @@ function PickSentenceStep({
         >
           <Text className="text-white font-semibold text-base">Next →</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     </View>
   );
 }
@@ -398,6 +412,7 @@ function ReviewStep({
   isSaving,
   error,
   onSave,
+  tabBarHeight,
 }: {
   draft: GenerateDraft;
   selectedImage: ImageResult;
@@ -406,10 +421,11 @@ function ReviewStep({
   isSaving: boolean;
   error?: string;
   onSave: () => void;
+  tabBarHeight: number;
 }) {
   const f = draft.draft.fields;
   return (
-    <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: 32 }}>
+    <ScrollView className="flex-1" contentContainerStyle={{ paddingBottom: tabBarHeight + 16 }}>
       <View className="px-5 pt-4 pb-2">
         <Text className="text-muted text-xs tracking-widest uppercase mb-1">Confere?</Text>
       </View>
