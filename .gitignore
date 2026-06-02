@@ -54,6 +54,14 @@ drizzle/.snapshot/
 *.mp3
 response.json
 
+# Claude Code / GSD framework
+.claude/
+.agents/
+skills-lock.json
+
+# Design docs
+*.pdf
+
 # ── GSD baseline (auto-generated) ──
 .gsd
 .gsd-id
