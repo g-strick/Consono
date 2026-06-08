@@ -58,9 +58,9 @@ export default function ReviewScreen() {
   const currentCard = cards[index];
 
   useEffect(() => {
-    if (phase === 'front' && currentCard?.audio_url) {
+    if (phase === 'front' && currentCard?.sentence_audio_url) {
       cardStartMs.current = Date.now();
-      playAudio(currentCard.audio_url);
+      playAudio(currentCard.sentence_audio_url);
     }
   }, [phase, index]);
 
@@ -198,7 +198,9 @@ export default function ReviewScreen() {
           <Text className="text-muted text-xs tracking-widest uppercase">Listen</Text>
 
           <TouchableOpacity
-            onPress={() => currentCard.audio_url && playAudio(currentCard.audio_url)}
+            onPress={() =>
+              currentCard.sentence_audio_url && playAudio(currentCard.sentence_audio_url)
+            }
             className="w-20 h-20 rounded-full bg-brand items-center justify-center"
           >
             <Text className="text-white text-3xl">▶</Text>

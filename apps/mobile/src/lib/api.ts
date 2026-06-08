@@ -49,8 +49,6 @@ export interface GenerateDraft {
       sounds_like: string | null;
       sentence_candidates: [string, string, string, string];
     };
-    audio_url: string;
-    audio_duration_ms: number;
     images: ImageResult[];
   };
 }
@@ -78,17 +76,7 @@ export const api = {
     return request<GenerateDraft>('/generate', {
       method: 'POST',
       body: JSON.stringify({ input_text, kind }),
-    }).then((data) => ({
-      ...data,
-      draft: { ...data.draft, audio_url: `${BASE}${data.draft.audio_url}` },
-    }));
-  },
-
-  generateSentenceAudio(sentence: string) {
-    return request<{ audio_url: string; audio_duration_ms: number; audio_clip_hash: string }>(
-      '/generate/sentence-audio',
-      { method: 'POST', body: JSON.stringify({ sentence }) },
-    ).then((data) => ({ ...data, audio_url: `${BASE}${data.audio_url}` }));
+    });
   },
 
   approveCard(body: {
@@ -96,7 +84,6 @@ export const api = {
     selected_image_url: string;
     selected_image_attribution: string;
     selected_sentence: string;
-    sentence_audio_clip_hash?: string;
     edits?: {
       stress_marker?: string;
       usage_context?: string;

@@ -1,7 +1,9 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { db, pending_cards, lemmas, cards } from '@portuguese-app/db';
+import { db, pending_cards, lemmas, cards, audio_clips } from '@portuguese-app/db';
 import { eq } from 'drizzle-orm';
+import { synthesize } from '../../../mobile/src/providers/tts.js';
+import { contentHash } from '../lib/audio.js';
 import { V0_USER_ID } from '../lib/constants.js';
 
 export const cardsRoute = new Hono();
@@ -10,8 +12,7 @@ const ApproveInput = z.object({
   pending_card_id: z.number().int(),
   selected_image_url: z.string().url(),
   selected_image_attribution: z.string(),
-  selected_sentence: z.string(),
-  sentence_audio_clip_hash: z.string().optional(),
+  selected_sentence: z.string().min(1),
   edits: z
     .object({
       stress_marker: z.string().optional(),
@@ -32,7 +33,6 @@ cardsRoute.post('/', async (c) => {
     selected_image_url,
     selected_image_attribution,
     selected_sentence,
-    sentence_audio_clip_hash,
     edits,
   } = parsed.data;
 
@@ -57,8 +57,22 @@ cardsRoute.post('/', async (c) => {
       register_tag: 'formal' | 'neutral' | 'informal' | 'slang' | 'vulgar';
       sounds_like: string | null;
     };
-    audio_hash: string;
   };
+
+  // Synthesize sentence audio — sentence is the card's only audio asset
+  const sentenceAudio = await synthesize(selected_sentence);
+  const sentenceHash = contentHash(selected_sentence);
+  await db
+    .insert(audio_clips)
+    .values({
+      content_hash: sentenceHash,
+      text: selected_sentence,
+      provider: 'narakeet',
+      voice_id: 'felipe',
+      storage_url: sentenceAudio.audioUrl,
+      duration_ms: sentenceAudio.durationMs,
+    })
+    .onConflictDoNothing();
 
   // Upsert lemma (dedup by user + headword)
   await db
@@ -87,10 +101,9 @@ cardsRoute.post('/', async (c) => {
       sounds_like: edits?.sounds_like !== undefined ? edits.sounds_like : draft.fields.sounds_like,
       image_url: selected_image_url,
       image_attribution: selected_image_attribution,
-      audio_clip_hash: draft.audio_hash,
       sentence_pt: selected_sentence,
       sentence_gloss_en: edits?.sentence_gloss_en,
-      sentence_audio_clip_hash: sentence_audio_clip_hash,
+      sentence_audio_clip_hash: sentenceHash,
     })
     .returning({ id: cards.id });
 

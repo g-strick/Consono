@@ -29,12 +29,16 @@ export default function AddScreen() {
   const [selectedImage, setSelectedImage] = useState<ImageResult | null>(null);
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
-  const [sentenceAudioHash, setSentenceAudioHash] = useState<string | null>(null);
 
   const generateMutation = useMutation({
     mutationFn: ({ text, kind }: { text: string; kind: CardKind }) => api.generate(text, kind),
-    onSuccess: (data) => {
+    onSuccess: (data, { kind }) => {
       setDraft(data);
+      // In sentence mode, PickSentenceStep is skipped — pre-populate so selectedSentence
+      // is always the final text rather than relying on a fallback at save time.
+      if (kind === 'sentence') {
+        setSelectedSentence(data.draft.fields.sentence_candidates[0]);
+      }
       setStep('pick-image');
     },
     onError: () => {
@@ -43,23 +47,14 @@ export default function AddScreen() {
     },
   });
 
-  const sentenceAudioMutation = useMutation({
-    mutationFn: (sentence: string) => api.generateSentenceAudio(sentence),
-    onSuccess: (data) => {
-      setSentenceAudioHash(data.audio_clip_hash);
-      setStep('review');
-    },
-  });
-
   const approveMutation = useMutation({
-    mutationFn: () => {
+    mutationFn: (sentence: string) => {
       if (!draft || !selectedImage) throw new Error('Missing draft or image');
       return api.approveCard({
         pending_card_id: draft.pending_card_id,
         selected_image_url: selectedImage.url,
         selected_image_attribution: selectedImage.attribution,
-        selected_sentence: selectedSentence || draft.draft.fields.sentence_candidates[0],
-        sentence_audio_clip_hash: sentenceAudioHash ?? undefined,
+        selected_sentence: sentence,
       });
     },
     onSuccess: (data) => {
@@ -82,9 +77,7 @@ export default function AddScreen() {
     setSelectedImage(null);
     setSelectedSentence('');
     setSavedCardId(null);
-    setSentenceAudioHash(null);
     generateMutation.reset();
-    sentenceAudioMutation.reset();
     approveMutation.reset();
   }
 
@@ -159,13 +152,8 @@ export default function AddScreen() {
           }}
           onNext={() => {
             if (!selectedImage) return;
-            if (mode === 'sentence') {
-              sentenceAudioMutation.mutate(draft.draft.fields.sentence_candidates[0]);
-            } else {
-              setStep('pick-sentence');
-            }
+            setStep(mode === 'sentence' ? 'review' : 'pick-sentence');
           }}
-          isGeneratingAudio={mode === 'sentence' && sentenceAudioMutation.isPending}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -175,11 +163,7 @@ export default function AddScreen() {
           candidates={[...draft.draft.fields.sentence_candidates]}
           selected={selectedSentence}
           onSelect={setSelectedSentence}
-          onNext={() => {
-            const sentence = selectedSentence || draft.draft.fields.sentence_candidates[0];
-            sentenceAudioMutation.mutate(sentence);
-          }}
-          isGeneratingAudio={sentenceAudioMutation.isPending}
+          onNext={() => setStep('review')}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -188,11 +172,11 @@ export default function AddScreen() {
         <ReviewStep
           draft={draft}
           selectedImage={selectedImage}
-          selectedSentence={selectedSentence || draft.draft.fields.sentence_candidates[0]}
+          selectedSentence={selectedSentence}
           mode={mode}
           isSaving={approveMutation.isPending}
           error={approveMutation.error?.message}
-          onSave={() => approveMutation.mutate()}
+          onSave={(sentence) => approveMutation.mutate(sentence)}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -305,14 +289,12 @@ function PickImageStep({
   selected,
   onSelect,
   onNext,
-  isGeneratingAudio,
   tabBarHeight,
 }: {
   images: ImageResult[];
   selected: ImageResult | null;
   onSelect: (img: ImageResult) => void;
   onNext: () => void;
-  isGeneratingAudio?: boolean;
   tabBarHeight: number;
 }) {
   return (
@@ -360,15 +342,11 @@ function PickImageStep({
 
         <TouchableOpacity
           onPress={onNext}
-          disabled={!selected || isGeneratingAudio}
+          disabled={!selected}
           className="bg-brand rounded-2xl py-4 items-center mt-4"
-          style={{ opacity: selected && !isGeneratingAudio ? 1 : 0.4 }}
+          style={{ opacity: selected ? 1 : 0.4 }}
         >
-          {isGeneratingAudio ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text className="text-white font-semibold text-base">Next →</Text>
-          )}
+          <Text className="text-white font-semibold text-base">Next →</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -380,14 +358,12 @@ function PickSentenceStep({
   selected,
   onSelect,
   onNext,
-  isGeneratingAudio,
   tabBarHeight,
 }: {
   candidates: string[];
   selected: string;
   onSelect: (s: string) => void;
   onNext: () => void;
-  isGeneratingAudio?: boolean;
   tabBarHeight: number;
 }) {
   return (
@@ -423,15 +399,11 @@ function PickSentenceStep({
 
         <TouchableOpacity
           onPress={onNext}
-          disabled={!selected || isGeneratingAudio}
+          disabled={!selected}
           className="bg-brand rounded-2xl py-4 items-center"
-          style={{ opacity: selected && !isGeneratingAudio ? 1 : 0.4 }}
+          style={{ opacity: selected ? 1 : 0.4 }}
         >
-          {isGeneratingAudio ? (
-            <ActivityIndicator color="#FFFFFF" />
-          ) : (
-            <Text className="text-white font-semibold text-base">Next →</Text>
-          )}
+          <Text className="text-white font-semibold text-base">Next →</Text>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -454,7 +426,7 @@ function ReviewStep({
   mode: Mode;
   isSaving: boolean;
   error?: string;
-  onSave: () => void;
+  onSave: (sentence: string) => void;
   tabBarHeight: number;
 }) {
   const f = draft.draft.fields;
@@ -507,7 +479,7 @@ function ReviewStep({
         {error && <Text className="text-red-500 text-sm text-center">{error}</Text>}
 
         <TouchableOpacity
-          onPress={onSave}
+          onPress={() => onSave(selectedSentence)}
           disabled={isSaving}
           className="bg-brand rounded-2xl py-4 items-center mt-2"
           style={{ opacity: isSaving ? 0.6 : 1 }}
