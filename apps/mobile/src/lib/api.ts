@@ -84,11 +84,19 @@ export const api = {
     }));
   },
 
+  generateSentenceAudio(sentence: string) {
+    return request<{ audio_url: string; audio_duration_ms: number; audio_clip_hash: string }>(
+      '/generate/sentence-audio',
+      { method: 'POST', body: JSON.stringify({ sentence }) },
+    ).then((data) => ({ ...data, audio_url: `${BASE}${data.audio_url}` }));
+  },
+
   approveCard(body: {
     pending_card_id: number;
     selected_image_url: string;
     selected_image_attribution: string;
     selected_sentence: string;
+    sentence_audio_clip_hash?: string;
     edits?: {
       stress_marker?: string;
       usage_context?: string;

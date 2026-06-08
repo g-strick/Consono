@@ -9,7 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
@@ -20,7 +20,8 @@ type Step = 'input' | 'loading' | 'pick-image' | 'pick-sentence' | 'review' | 's
 
 export default function AddScreen() {
   const queryClient = useQueryClient();
-  const tabBarHeight = useBottomTabBarHeight();
+  const insets = useSafeAreaInsets();
+  const tabBarHeight = useBottomTabBarHeight() + insets.bottom;
   const [mode, setMode] = useState<Mode>('word');
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState('');
@@ -28,6 +29,7 @@ export default function AddScreen() {
   const [selectedImage, setSelectedImage] = useState<ImageResult | null>(null);
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
+  const [sentenceAudioHash, setSentenceAudioHash] = useState<string | null>(null);
 
   const generateMutation = useMutation({
     mutationFn: ({ text, kind }: { text: string; kind: CardKind }) => api.generate(text, kind),
@@ -41,6 +43,14 @@ export default function AddScreen() {
     },
   });
 
+  const sentenceAudioMutation = useMutation({
+    mutationFn: (sentence: string) => api.generateSentenceAudio(sentence),
+    onSuccess: (data) => {
+      setSentenceAudioHash(data.audio_clip_hash);
+      setStep('review');
+    },
+  });
+
   const approveMutation = useMutation({
     mutationFn: () => {
       if (!draft || !selectedImage) throw new Error('Missing draft or image');
@@ -49,6 +59,7 @@ export default function AddScreen() {
         selected_image_url: selectedImage.url,
         selected_image_attribution: selectedImage.attribution,
         selected_sentence: selectedSentence || draft.draft.fields.sentence_candidates[0],
+        sentence_audio_clip_hash: sentenceAudioHash ?? undefined,
       });
     },
     onSuccess: (data) => {
@@ -71,7 +82,9 @@ export default function AddScreen() {
     setSelectedImage(null);
     setSelectedSentence('');
     setSavedCardId(null);
+    setSentenceAudioHash(null);
     generateMutation.reset();
+    sentenceAudioMutation.reset();
     approveMutation.reset();
   }
 
@@ -146,8 +159,13 @@ export default function AddScreen() {
           }}
           onNext={() => {
             if (!selectedImage) return;
-            setStep(mode === 'sentence' ? 'review' : 'pick-sentence');
+            if (mode === 'sentence') {
+              sentenceAudioMutation.mutate(draft.draft.fields.sentence_candidates[0]);
+            } else {
+              setStep('pick-sentence');
+            }
           }}
+          isGeneratingAudio={mode === 'sentence' && sentenceAudioMutation.isPending}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -157,7 +175,11 @@ export default function AddScreen() {
           candidates={[...draft.draft.fields.sentence_candidates]}
           selected={selectedSentence}
           onSelect={setSelectedSentence}
-          onNext={() => setStep('review')}
+          onNext={() => {
+            const sentence = selectedSentence || draft.draft.fields.sentence_candidates[0];
+            sentenceAudioMutation.mutate(sentence);
+          }}
+          isGeneratingAudio={sentenceAudioMutation.isPending}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -283,12 +305,14 @@ function PickImageStep({
   selected,
   onSelect,
   onNext,
+  isGeneratingAudio,
   tabBarHeight,
 }: {
   images: ImageResult[];
   selected: ImageResult | null;
   onSelect: (img: ImageResult) => void;
   onNext: () => void;
+  isGeneratingAudio?: boolean;
   tabBarHeight: number;
 }) {
   return (
@@ -336,11 +360,15 @@ function PickImageStep({
 
         <TouchableOpacity
           onPress={onNext}
-          disabled={!selected}
+          disabled={!selected || isGeneratingAudio}
           className="bg-brand rounded-2xl py-4 items-center mt-4"
-          style={{ opacity: selected ? 1 : 0.4 }}
+          style={{ opacity: selected && !isGeneratingAudio ? 1 : 0.4 }}
         >
-          <Text className="text-white font-semibold text-base">Next →</Text>
+          {isGeneratingAudio ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text className="text-white font-semibold text-base">Next →</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -352,12 +380,14 @@ function PickSentenceStep({
   selected,
   onSelect,
   onNext,
+  isGeneratingAudio,
   tabBarHeight,
 }: {
   candidates: string[];
   selected: string;
   onSelect: (s: string) => void;
   onNext: () => void;
+  isGeneratingAudio?: boolean;
   tabBarHeight: number;
 }) {
   return (
@@ -393,11 +423,15 @@ function PickSentenceStep({
 
         <TouchableOpacity
           onPress={onNext}
-          disabled={!selected}
+          disabled={!selected || isGeneratingAudio}
           className="bg-brand rounded-2xl py-4 items-center"
-          style={{ opacity: selected ? 1 : 0.4 }}
+          style={{ opacity: selected && !isGeneratingAudio ? 1 : 0.4 }}
         >
-          <Text className="text-white font-semibold text-base">Next →</Text>
+          {isGeneratingAudio ? (
+            <ActivityIndicator color="#FFFFFF" />
+          ) : (
+            <Text className="text-white font-semibold text-base">Next →</Text>
+          )}
         </TouchableOpacity>
       </ScrollView>
     </View>

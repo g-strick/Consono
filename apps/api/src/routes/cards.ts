@@ -11,6 +11,7 @@ const ApproveInput = z.object({
   selected_image_url: z.string().url(),
   selected_image_attribution: z.string(),
   selected_sentence: z.string(),
+  sentence_audio_clip_hash: z.string().optional(),
   edits: z
     .object({
       stress_marker: z.string().optional(),
@@ -31,6 +32,7 @@ cardsRoute.post('/', async (c) => {
     selected_image_url,
     selected_image_attribution,
     selected_sentence,
+    sentence_audio_clip_hash,
     edits,
   } = parsed.data;
 
@@ -88,6 +90,7 @@ cardsRoute.post('/', async (c) => {
       audio_clip_hash: draft.audio_hash,
       sentence_pt: selected_sentence,
       sentence_gloss_en: edits?.sentence_gloss_en,
+      sentence_audio_clip_hash: sentence_audio_clip_hash,
     })
     .returning({ id: cards.id });
 

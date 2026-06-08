@@ -10,6 +10,38 @@ import { contentHash } from '../lib/audio.js';
 
 export const generateRoute = new Hono();
 
+const SentenceAudioInput = z.object({
+  sentence: z.string().min(1),
+});
+
+generateRoute.post('/sentence-audio', async (c) => {
+  const body = await c.req.json();
+  const parsed = SentenceAudioInput.safeParse(body);
+  if (!parsed.success) return c.json({ error: parsed.error.format() }, 400);
+  const { sentence } = parsed.data;
+
+  const audio = await synthesize(sentence);
+  const hash = contentHash(sentence);
+
+  await db
+    .insert(audio_clips)
+    .values({
+      content_hash: hash,
+      text: sentence,
+      provider: 'narakeet',
+      voice_id: 'felipe',
+      storage_url: audio.audioUrl,
+      duration_ms: audio.durationMs,
+    })
+    .onConflictDoNothing();
+
+  return c.json({
+    audio_url: `/audio/${hash}`,
+    audio_duration_ms: audio.durationMs,
+    audio_clip_hash: hash,
+  });
+});
+
 const GenerateInput = z.object({
   input_text: z.string().min(1),
   kind: z.enum(['word', 'sentence']),
