@@ -10,8 +10,8 @@ See: `.planning/PROJECT.md`
 ## Current Position
 
 - **Phase:** 1 of 7 — Core Flow Fixed
-- **Status:** In progress
-- **Progress:** ██░░░░░░░░ 15%
+- **Status:** All plans complete — pending device test before closing
+- **Progress:** ███░░░░░░░ 20%
 
 ## Phase 1 Status
 
@@ -19,7 +19,7 @@ See: `.planning/PROJECT.md`
 | ---- | ---------------------------------------------------------- | --------------------------- |
 | 1.1  | Tab bar fix + flex layout (Add wizard)                     | ✓ Complete (merged to main) |
 | 1.2  | Sentence audio at approval; remove word TTS from /generate | ✓ Complete (fa89fef)        |
-| 1.3  | /users/me endpoint + real user name                        | ○ Pending                   |
+| 1.3  | /users/me endpoint + real user name                        | ✓ Complete (8ab1657)        |
 
 ## Recent Decisions
 
@@ -35,6 +35,6 @@ See: `.planning/PROJECT.md`
 
 ## Session Continuity
 
-Last session: 2026-06-08
-Stopped at: Plan 1.2 complete and committed. Paused before Plan 1.3.
-Next: Plan 1.3 — GET /users/me endpoint + wire real user name into Home screen (replace "Léo").
+Last session: 2026-06-19
+Stopped at: Plan 1.3 complete and committed (8ab1657). All three Phase 1 plans done.
+Next: Device-test sentence audio (Plan 1.2) + new user name on Home, then close Phase 1 and advance to Phase 2.
