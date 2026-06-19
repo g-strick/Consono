@@ -31,10 +31,12 @@ export default function ReviewScreen() {
       rating: Rating;
       duration_ms: number;
     }) => api.submitReview(card_id, rating, duration_ms),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['cards', 'due'] });
-    },
   });
+
+  function exitReview() {
+    queryClient.invalidateQueries({ queryKey: ['cards', 'due'] });
+    router.back();
+  }
 
   const cardStartMs = useRef(Date.now());
 
@@ -126,7 +128,7 @@ export default function ReviewScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-row items-center justify-between px-5 pt-2">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={exitReview}>
             <Text className="text-content text-base">× Exit</Text>
           </TouchableOpacity>
         </View>
@@ -166,13 +168,7 @@ export default function ReviewScreen() {
             <StatRow label="Accuracy" value={`${accuracy}%`} />
             <StatRow label="Time" value={`${mins}m ${secs}s`} />
           </View>
-          <TouchableOpacity
-            onPress={() => {
-              queryClient.invalidateQueries({ queryKey: ['cards', 'due'] });
-              router.back();
-            }}
-            className="bg-white rounded-2xl px-10 py-4 mt-4"
-          >
+          <TouchableOpacity onPress={exitReview} className="bg-white rounded-2xl px-10 py-4 mt-4">
             <Text className="text-brand font-semibold text-base">Home</Text>
           </TouchableOpacity>
         </View>
@@ -186,7 +182,7 @@ export default function ReviewScreen() {
     return (
       <SafeAreaView className="flex-1 bg-white">
         <View className="flex-row items-center justify-between px-5 pt-2">
-          <TouchableOpacity onPress={() => router.back()}>
+          <TouchableOpacity onPress={exitReview}>
             <Text className="text-content text-base">× Exit</Text>
           </TouchableOpacity>
           <Text className="text-muted text-sm">
@@ -228,7 +224,7 @@ export default function ReviewScreen() {
   return (
     <SafeAreaView className="flex-1 bg-white">
       <View className="flex-row items-center justify-between px-5 pt-2">
-        <TouchableOpacity onPress={() => router.back()}>
+        <TouchableOpacity onPress={exitReview}>
           <Text className="text-content text-base">× Exit</Text>
         </TouchableOpacity>
         <Text className="text-muted text-sm">
