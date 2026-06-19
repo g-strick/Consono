@@ -12,6 +12,11 @@ function getGreeting(): string {
   return 'Boa noite';
 }
 
+/** "Olá, Léo." when a name is known, "Olá." while it loads or is unavailable. */
+function withName(prefix: string, name: string): string {
+  return name ? `${prefix}, ${name}.` : `${prefix}.`;
+}
+
 function getStreakState(streakCount: number, dueCount: number): StreakState {
   if (streakCount <= 1) return 'inactive';
   if (dueCount === 0) return 'continued';
@@ -37,8 +42,15 @@ export default function HomeScreen() {
     refetchOnWindowFocus: true,
   });
 
+  const { data: me } = useQuery({
+    queryKey: ['users', 'me'],
+    queryFn: () => api.getMe(),
+    staleTime: 1000 * 60 * 60,
+  });
+
   // V0: streak hardcoded — no user endpoint yet
   const streakCount = 1;
+  const name = me?.name ?? '';
   const cards = data?.cards ?? [];
   const dueCount = cards.length;
   const streakState = getStreakState(streakCount, dueCount);
@@ -63,13 +75,18 @@ export default function HomeScreen() {
         {isLoading ? (
           <LoadingState />
         ) : isError ? (
-          <ErrorState />
+          <ErrorState name={name} />
         ) : dueCount === 0 && !data ? (
-          <EmptyState />
+          <EmptyState name={name} />
         ) : dueCount === 0 ? (
-          <AllDoneState recentCards={recentCards} />
+          <AllDoneState name={name} recentCards={recentCards} />
         ) : (
-          <DailyPickupState dueCount={dueCount} counts={counts} recentCards={recentCards} />
+          <DailyPickupState
+            name={name}
+            dueCount={dueCount}
+            counts={counts}
+            recentCards={recentCards}
+          />
         )}
       </ScrollView>
     </SafeAreaView>
@@ -84,10 +101,10 @@ function LoadingState() {
   );
 }
 
-function ErrorState() {
+function ErrorState({ name }: { name: string }) {
   return (
     <View className="pt-16">
-      <Text className="text-white text-3xl font-semibold">Olá, Léo.</Text>
+      <Text className="text-white text-3xl font-semibold">{withName('Olá', name)}</Text>
       <Text className="text-white/60 text-base mt-2">
         Couldn't reach the server. Is the API running?
       </Text>
@@ -95,10 +112,10 @@ function ErrorState() {
   );
 }
 
-function EmptyState() {
+function EmptyState({ name }: { name: string }) {
   return (
     <View className="pt-16">
-      <Text className="text-white text-3xl font-semibold">Bem-vindo, Léo.</Text>
+      <Text className="text-white text-3xl font-semibold">{withName('Bem-vindo', name)}</Text>
       <Text className="text-white/75 text-base mt-2 mb-10">Your deck is empty.</Text>
       <Text className="text-white/60 text-sm mb-6 leading-relaxed">
         AI proposes images, audio and i+1 examples — you pick and edit.
@@ -108,10 +125,10 @@ function EmptyState() {
   );
 }
 
-function AllDoneState({ recentCards }: { recentCards: DueCard[] }) {
+function AllDoneState({ name, recentCards }: { name: string; recentCards: DueCard[] }) {
   return (
     <View className="pt-16">
-      <Text className="text-white text-3xl font-semibold">Tudo pronto, Léo.</Text>
+      <Text className="text-white text-3xl font-semibold">{withName('Tudo pronto', name)}</Text>
       <Text className="text-white/75 text-base mt-2 mb-10">All caught up for today.</Text>
       <CTARow />
       {recentCards.length > 0 && <RecentlyAdded cards={recentCards} />}
@@ -120,17 +137,19 @@ function AllDoneState({ recentCards }: { recentCards: DueCard[] }) {
 }
 
 function DailyPickupState({
+  name,
   dueCount,
   counts,
   recentCards,
 }: {
+  name: string;
   dueCount: number;
   counts: { new: number; learning: number; review: number };
   recentCards: DueCard[];
 }) {
   return (
     <View className="pt-12">
-      <Text className="text-white text-3xl font-semibold">{getGreeting()}, Léo.</Text>
+      <Text className="text-white text-3xl font-semibold">{withName(getGreeting(), name)}</Text>
 
       {/* DUE NOW tile */}
       <View className="mt-8 mb-2">
