@@ -71,7 +71,17 @@ export interface DueCard {
   due_at: string;
 }
 
+export interface Me {
+  id: string;
+  name: string;
+  audio_speed: number;
+}
+
 export const api = {
+  getMe() {
+    return request<Me>('/users/me');
+  },
+
   generate(input_text: string, kind: CardKind) {
     return request<GenerateDraft>('/generate', {
       method: 'POST',
