@@ -1,28 +1,56 @@
 # LingoCards Roadmap
 
 **Created:** 2026-06-02
-**Phases:** 7 | **Requirements:** 35
+**Phases:** 7 (+1 inserted: 1.1) | **Requirements:** 35
 
 ---
 
-## Phase 1: Core Flow Fixed
+## Phase 1: Core Flow Fixed ✓ Complete (2026-06-20)
 
 **Goal:** App is usable end-to-end on a real device — add a word, hear audio, complete a review session.
-**Branch:** fix/add-wizard-flow (in progress)
+**Branch:** fix/add-wizard-flow
 
 **Requirements:** CORE-04, CORE-05
 
-**Plans:**
+**Plans:** 3/3 complete
 
 1. Fix tab bar overlapping Next button in Add wizard ✓
-2. Generate sentence audio during card approval (backend: `apps/api/src/routes/generate.ts`)
-3. Add /users/me endpoint, wire real user name throughout UI
+2. Generate sentence audio during card approval (backend: `apps/api/src/routes/generate.ts`) ✓
+3. Add /users/me endpoint, wire real user name throughout UI ✓
 
-**Success Criteria:**
+**Success Criteria:** (all verified via UAT 2026-06-20)
 
-1. User can complete full Add wizard on iPhone without UI blocking issues
-2. Both word audio and sentence audio play correctly on review reveal
-3. Home shows real user name, not "Léo"
+1. User can complete full Add wizard on iPhone without UI blocking issues ✓
+2. Both word audio and sentence audio play correctly on review reveal ✓
+3. Home shows real user name, not "Léo" ✓
+
+---
+
+## Phase 1.1: v6 Visual Redesign (whole app)
+
+**Goal:** The whole app looks like the v6 handoff (`wireframes/Wireframes v6.html`) — one cohesive design system applied across every screen. This is a visual + structural reskin; the deeper feature logic in Phases 2–5 then builds on top of the v6 surfaces.
+**Depends on:** Phase 1
+**Design source:** `wireframes/Wireframes v6.html` (+ `screenshots/`)
+
+**Requirements:** DSGN-01, DSGN-02 (upgraded v5→v6), V6-01…V6-06
+
+**Plans:** 6 plans in 3 waves
+
+- [ ] 01.1-01-PLAN.md — Design-system foundation: Geist + Geist Mono + Instrument Serif fonts, v6 tokens (cobalt `#1F3494`/fill `#2E5BC8`, gold `#E8B838`, 4-stop heat ramp, OLED), surface-driven text primitives (V6-01, DSGN-01, DSGN-02) · wave 1
+- [ ] 01.1-02-PLAN.md — Shared components: streak chip (52×26, 3 states + 280ms fill), stat tiles, rating buttons, chips, card/gender-bar surfaces (V6-02) · wave 2
+- [ ] 01.1-03-PLAN.md — Merged type-detecting Add wizard: single "+ Add", live overridable word/sentence detector, shared image/review/save shell (V6-03) · wave 3
+- [ ] 01.1-04-PLAN.md — Review loop reskin: intro → audio-only front (gold play, waveform, "O que ouves?") → reveal & rate → cobalt session done; OLED night theme (V6-04, DSGN-01) · wave 3
+- [ ] 01.1-05-PLAN.md — Home reskin: three states, surface-driven greeting, cobalt only on due number + key actions, recently-added, streak chip (V6-05, DSGN-02) · wave 3
+- [ ] 01.1-06-PLAN.md — Streak detail reskin: period toggle, compact hero, 53w×7d heatmap (4-stop ramp, today outlined), rating distribution bar (V6-06) · wave 3
+
+**Success Criteria:** (verified against the v6 handoff)
+
+1. Geist + Instrument Serif render app-wide; no cobalt-on-white body copy anywhere (text follows surface)
+2. A single "+ Add" entry detects word vs. sentence and routes through one shared wizard
+3. Review, Home, and Streak detail screens match the v6 layouts and palette
+4. Streak corner chip shows 3 states and animates the at-risk→continued fill on session complete
+
+> **Overlap note:** This phase reskins screens that Phases 2 (Review/Home), 3 (Streak/Design-fidelity), and 4 (Add) also touch. Those phases were written against v5 and should be re-scoped to _functional depth on top of v6 surfaces_ (real FSRS session logic, real streak data, audio-speed toggle, source tagging, etc.) — reconcile when planning.
 
 ---
 
