@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 01.1 Plan 02 complete — shared component kit (StreakChip v6, StatTile, Chip, Card, RatingButtons). Commits: ed00475, b183dbe, d497c0f.'
-last_updated: '2026-06-20T20:55:41Z'
+stopped_at: 'Phase 01.1 Plan 03 complete — merged type-detecting Add wizard (detectKind.ts + v6 reskin). Commits: 41616a6, 0461d37.'
+last_updated: '2026-06-20T21:35:00Z'
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 6
-  completed_plans: 2
-  percent: 33
+  completed_plans: 3
+  percent: 50
 ---
 
 # LingoCards — Project State
@@ -25,7 +25,7 @@ See: `.planning/PROJECT.md` (updated 2026-06-20)
 ## Current Position
 
 Phase: 01.1 (v6-visual-redesign) — EXECUTING
-Plan: 3 of 6 (Plans 01–02 complete)
+Plan: 4 of 6 (Plans 01–03 complete)
 
 - **Phase:** 1.1 of 7 — v6 Visual Redesign (inserted; whole-app reskin to v6 handoff)
 - **Status:** Executing Phase 01.1
@@ -50,6 +50,9 @@ Plan: 3 of 6 (Plans 01–02 complete)
 - Num/Action default to tone=brand; Display/Heading/Body default to tone=primary
 - Ionicons does not accept Animated values — icon color static per state, text color interpolated
 - RatingButtons default intervals are visual-fidelity placeholders; real FSRS data from Plan 04
+- kindOverride is null by default; clearing the field resets it per detector contract
+- detectKind test file uses typed node assertions (no @types/jest) — Jest migration is trivial when added
+- LoadingStep pipeline rows are static placeholders; live status wired in Phase 4 ADD-01
 
 ## Blockers / Concerns
 
@@ -58,6 +61,6 @@ Plan: 3 of 6 (Plans 01–02 complete)
 ## Session Continuity
 
 Last session: 2026-06-20
-Stopped at: Phase 01.1 Plan 02 complete — shared component kit (StreakChip, StatTile, Chip, Card, RatingButtons). Commits ed00475/b183dbe/d497c0f.
-Next: Execute Phase 01.1 Plan 03 (merged type-detecting Add wizard).
+Stopped at: Phase 01.1 Plan 03 complete — merged type-detecting Add wizard (detectKind.ts + v6 reskin all steps). Commits 41616a6/0461d37.
+Next: Execute Phase 01.1 Plan 04 (next plan in wave).
 Resume file: None
