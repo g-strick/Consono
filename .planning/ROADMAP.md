@@ -34,12 +34,12 @@
 
 **Requirements:** DSGN-01, DSGN-02 (upgraded v5→v6), V6-01…V6-06
 
-**Plans:** 6 plans in 3 waves
+**Plans:** 4/6 plans executed
 
 - [x] 01.1-01-PLAN.md — Design-system foundation: Geist + Geist Mono + Instrument Serif fonts, v6 tokens (cobalt `#1F3494`/fill `#2E5BC8`, gold `#E8B838`, 4-stop heat ramp, OLED), surface-driven text primitives (V6-01, DSGN-01, DSGN-02) · wave 1 ✓ 2026-06-20
 - [x] 01.1-02-PLAN.md — Shared components: streak chip (52×26, 3 states + 280ms fill), stat tiles, rating buttons, chips, card/gender-bar surfaces (V6-02) · wave 2 ✓ 2026-06-20
 - [x] 01.1-03-PLAN.md — Merged type-detecting Add wizard: single "+ Add", live overridable word/sentence detector, shared image/review/save shell (V6-03) · wave 3 ✓ 2026-06-20
-- [ ] 01.1-04-PLAN.md — Review loop reskin: intro → audio-only front (gold play, waveform, "O que ouves?") → reveal & rate → cobalt session done; OLED night theme (V6-04, DSGN-01) · wave 3
+- [x] 01.1-04-PLAN.md — Review loop reskin: intro → audio-only front (gold play, waveform, "O que ouves?") → reveal & rate → cobalt session done; OLED night theme (V6-04, DSGN-01) · wave 3
 - [ ] 01.1-05-PLAN.md — Home reskin: three states, surface-driven greeting, cobalt only on due number + key actions, recently-added, streak chip (V6-05, DSGN-02) · wave 3
 - [ ] 01.1-06-PLAN.md — Streak detail reskin: period toggle, compact hero, 53w×7d heatmap (4-stop ramp, today outlined), rating distribution bar (V6-06) · wave 3
 
