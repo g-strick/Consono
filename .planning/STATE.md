@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 01.1 Plan 03 complete — merged type-detecting Add wizard (detectKind.ts + v6 reskin). Commits: 41616a6, 0461d37.'
-last_updated: '2026-06-20T21:35:00Z'
+stopped_at: 'Phase 01.1 COMPLETE — all 6 plans executed (v6 visual redesign). Final: Plan 06 streak detail (Heatmap + RatingDistribution + streak/index). Commits: 55442d8, e34cf4e, 0e3c6c0.'
+last_updated: '2026-06-21T00:00:00Z'
 progress:
   total_phases: 9
   completed_phases: 0
   total_plans: 6
-  completed_plans: 3
-  percent: 50
+  completed_plans: 6
+  percent: 100
 ---
 
 # LingoCards — Project State
@@ -24,11 +24,11 @@ See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 ## Current Position
 
-Phase: 01.1 (v6-visual-redesign) — EXECUTING
-Plan: 4 of 6 (Plans 01–03 complete)
+Phase: 01.1 (v6-visual-redesign) — ✓ COMPLETE (all 6 plans executed)
+Plan: 6 of 6 (Plans 01–06 complete)
 
 - **Phase:** 1.1 of 7 — v6 Visual Redesign (inserted; whole-app reskin to v6 handoff)
-- **Status:** Executing Phase 01.1
+- **Status:** Phase 01.1 complete — ready for verify/UAT, then Phase 2
 - **Progress:** █░░░░░░░░░ 14% (1 of 7 phases complete)
 
 ## Phase 1 Status — ✓ Complete (UAT 5/5)
@@ -60,7 +60,7 @@ Plan: 4 of 6 (Plans 01–03 complete)
 
 ## Session Continuity
 
-Last session: 2026-06-20
-Stopped at: Phase 01.1 Plan 03 complete — merged type-detecting Add wizard (detectKind.ts + v6 reskin all steps). Commits 41616a6/0461d37.
-Next: Execute Phase 01.1 Plan 04 (next plan in wave).
+Last session: 2026-06-21
+Stopped at: Phase 01.1 COMPLETE — all 6 v6-redesign plans executed. Plan 06 (streak detail: Heatmap.tsx + RatingDistribution.tsx + streak/index.tsx) committed 55442d8/e34cf4e/0e3c6c0. tsc clean.
+Next: Verify/UAT Phase 01.1 against the v6 handoff, then plan/execute Phase 2.
 Resume file: None
