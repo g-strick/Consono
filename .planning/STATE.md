@@ -61,6 +61,6 @@ Plan: 6 of 6 (Plans 01–06 complete)
 ## Session Continuity
 
 Last session: 2026-06-21
-Stopped at: Phase 01.1 COMPLETE — all 6 v6-redesign plans executed. Plan 06 (streak detail: Heatmap.tsx + RatingDistribution.tsx + streak/index.tsx) committed 55442d8/e34cf4e/0e3c6c0. tsc clean.
-Next: Verify/UAT Phase 01.1 against the v6 handoff, then plan/execute Phase 2.
+Stopped at: Phase 01.1 COMPLETE + UAT PASSED (8 pass / 1 skip / 0 open issues, 01.1-UAT.md commit 28b953e). Cold-start blocker found during UAT (react-native-svg→buffer red-box) and fixed inline by replacing the review waveform with Views + dropping react-native-svg (commit d19458d).
+Next: Plan/execute Phase 2 (Review Loop + Home States). Two deferred follow-ups: (1) night-theme UAT test #7 not run (time-gated); (2) real streak count/aggregation — Home chip is hardcoded to 1 (Phase 2/3 STRK).
 Resume file: None
