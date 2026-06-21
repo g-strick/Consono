@@ -4,7 +4,6 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Audio } from 'expo-av';
-import Svg, { Path } from 'react-native-svg';
 import { api, Rating } from '@/src/lib/api';
 import { colors } from '@/src/lib/theme';
 import { useNightSurface } from '@/src/lib/useNightSurface';
@@ -19,9 +18,12 @@ type Phase = 'intro' | 'front' | 'back' | 'done';
 // count is a placeholder until the streak aggregation endpoint exists.
 const STREAK_PLACEHOLDER = 12;
 
-// v6 waveform — a single static SVG path rendered on the audio-only front.
-const WAVEFORM_PATH =
-  'M0 15 Q 5 4 10 15 T 20 15 Q 25 2 30 15 T 40 15 Q 45 7 50 15 T 60 15 Q 65 1 70 15 T 80 15 Q 85 6 90 15 T 100 15 Q 105 3 110 15 T 120 15 Q 125 8 130 15 T 140 15 Q 145 5 150 15 T 160 15 Q 165 2 170 15 T 180 15';
+// v6 waveform — a static row of bars rendered on the audio-only front.
+// Heights (px, within a 30px band) approximate an audio waveform; plain Views
+// keep this dependency-free (no react-native-svg / buffer polyfill needed).
+const WAVEFORM_BARS = [
+  8, 16, 11, 22, 13, 26, 10, 20, 14, 28, 12, 24, 9, 18, 15, 27, 11, 21, 13, 25, 10, 17, 8,
+];
 
 function genderColor(gender?: string | null): string {
   if (gender === 'feminine') return colors.genderFem;
@@ -320,16 +322,28 @@ export default function ReviewScreen() {
             </Action>
           </TouchableOpacity>
 
-          {/* waveform */}
-          <Svg width={180} height={30} viewBox="0 0 180 30">
-            <Path
-              d={WAVEFORM_PATH}
-              stroke={isOled ? colors.brandLight : colors.brand}
-              strokeWidth={2}
-              fill="none"
-              strokeLinecap="round"
-            />
-          </Svg>
+          {/* waveform — static bars (View-based, no SVG dependency) */}
+          <View
+            style={{
+              width: 180,
+              height: 30,
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
+            {WAVEFORM_BARS.map((h, i) => (
+              <View
+                key={i}
+                style={{
+                  width: 3,
+                  height: h,
+                  borderRadius: 1.5,
+                  backgroundColor: isOled ? colors.brandLight : colors.brand,
+                }}
+              />
+            ))}
+          </View>
 
           <Display surface={nightSurface} tone="muted" italic size={28}>
             O que ouves?
