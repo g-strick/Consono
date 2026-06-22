@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 2 context gathered. 02-CONTEXT.md captures: streak = any-review-per-day / always-at-risk-if-due / local-midnight; first-run via total-card-count; next-batch from earliest due_at; today-stats from reviews table; RVEW-05 revised to a Duolingo-style slow (turtle) replay (no speed-up). Card editing + settings confirmed deferred to Phase 5.'
-last_updated: '2026-06-22T17:33:36.620Z'
+stopped_at: 'Phase 02 COMPLETE — UAT 5/5 approved on device (real streak count + at-risk→continued 280ms fill, audio-only front, per-tap 🐢 slow replay ~0.7x, cobalt done, Home cache refresh). All 3 plans done (02-01 endpoint, 02-02 home wiring, 02-03 review streak + slow audio). Ready for next phase.'
+last_updated: '2026-06-22T18:00:00.000Z'
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 7
-  percent: 11
+  completed_plans: 8
+  percent: 22
 ---
 
 # LingoCards — Project State
@@ -24,12 +24,19 @@ See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 ## Current Position
 
-Phase: 02 (review-loop-home-states) — EXECUTING
-Plan: 2 of 3
+Phase: 02 (review-loop-home-states) — ✓ COMPLETE (UAT 5/5)
+Plan: 3 of 3 done
 
-- **Phase:** 1.1 of 7 — v6 Visual Redesign (inserted; whole-app reskin to v6 handoff)
-- **Status:** Ready to execute
-- **Progress:** [████████░░] 78%
+- **Status:** Phase 02 verified on device; ready to start next phase
+- **Progress:** [██░░░░░░░░] 22% (2/9 phases)
+
+## Phase 2 Status — ✓ Complete (UAT 5/5)
+
+| Plan | Description                                                | Status               |
+| ---- | ---------------------------------------------------------- | -------------------- |
+| 2.1  | GET /home/summary aggregation + HomeSummary client/types   | ✓ Complete (7521b28) |
+| 2.2  | Home screen wired to real data (states/streak/stats/batch) | ✓ Complete (606c68e) |
+| 2.3  | Review streak chips + per-tap 🐢 slow replay (~0.7x)       | ✓ Complete (764ed34) |
 
 ## Phase 1 Status — ✓ Complete (UAT 5/5)
 
