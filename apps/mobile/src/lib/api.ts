@@ -77,9 +77,30 @@ export interface Me {
   audio_speed: number;
 }
 
+export interface RecentCard {
+  id: number;
+  headword: string | null;
+  sentence_pt: string | null;
+  gender: 'masculine' | 'feminine' | 'common' | null;
+  state: 'new' | 'learning' | 'review' | 'relearning';
+  created_at: string;
+}
+
+export interface HomeSummary {
+  totalCards: number;
+  streak: { count: number; active: boolean; reviewedToday: boolean };
+  todayStats: { reviewed: number; again: number };
+  nextDueAt: string | null;
+  recentCards: RecentCard[];
+}
+
 export const api = {
   getMe() {
     return request<Me>('/users/me');
+  },
+
+  getHomeSummary() {
+    return request<HomeSummary>('/home/summary');
   },
 
   generate(input_text: string, kind: CardKind) {

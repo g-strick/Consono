@@ -2,7 +2,7 @@ import { View, TouchableOpacity, ScrollView, ActivityIndicator, StyleSheet } fro
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { useQuery } from '@tanstack/react-query';
-import { api, DueCard } from '@/src/lib/api';
+import { api, DueCard, RecentCard } from '@/src/lib/api';
 import { StreakChip, StreakState } from '@/src/components/StreakChip';
 import { Display, Body, Mono, Num, Action } from '@/src/components/Type';
 import { Chip } from '@/src/components/Chip';
@@ -21,12 +21,14 @@ function withName(prefix: string, name: string): string {
   return name ? `${prefix}, ${name}.` : `${prefix}.`;
 }
 
-function getStreakState(streakCount: number, dueCount: number): StreakState {
-  if (streakCount <= 1) return 'inactive';
-  if (dueCount === 0) return 'continued';
-  const h = new Date().getHours();
-  if (h >= 18) return 'at-risk';
-  return 'inactive';
+function getStreakState(
+  streak: { count: number; active: boolean; reviewedToday: boolean } | undefined,
+  dueCount: number,
+): StreakState {
+  if (!streak || !streak.active) return 'inactive';
+  if (streak.reviewedToday) return 'continued';
+  if (dueCount > 0) return 'at-risk';
+  return 'continued';
 }
 
 function cardCounts(cards: DueCard[]) {
@@ -37,6 +39,18 @@ function cardCounts(cards: DueCard[]) {
     else counts.review++;
   }
   return counts;
+}
+
+/** Returns a "next batch · Xh" or "next batch · Xm" label from an ISO nextDueAt string. */
+export function computeNextBatchLabel(nextDueAt: string | null): string {
+  if (!nextDueAt) return 'next batch · —';
+  const diffMs = new Date(nextDueAt).getTime() - Date.now();
+  if (diffMs <= 0) return 'next batch · —';
+  const totalMins = diffMs / 1000 / 60;
+  if (totalMins < 60) {
+    return `next batch · ${Math.round(totalMins)}m`;
+  }
+  return `next batch · ${Math.round(totalMins / 60)}h`;
 }
 
 export default function HomeScreen() {
@@ -52,14 +66,19 @@ export default function HomeScreen() {
     staleTime: 1000 * 60 * 60,
   });
 
-  // V0: streak hardcoded — no user endpoint yet
-  const streakCount = 1;
+  const { data: homeSummary } = useQuery({
+    queryKey: ['home', 'summary'],
+    queryFn: () => api.getHomeSummary(),
+    refetchOnWindowFocus: true,
+  });
+
+  const streakCount = homeSummary?.streak.count ?? 0;
   const name = me?.name ?? '';
   const cards = data?.cards ?? [];
   const dueCount = cards.length;
-  const streakState = getStreakState(streakCount, dueCount);
+  const streakState = getStreakState(homeSummary?.streak, dueCount);
   const counts = cardCounts(cards);
-  const recentCards = [...cards].slice(0, 3);
+  const recentCards: RecentCard[] = homeSummary?.recentCards ?? [];
 
   return (
     <SafeAreaView style={styles.root}>
@@ -82,16 +101,20 @@ export default function HomeScreen() {
           <LoadingState />
         ) : isError ? (
           <ErrorState name={name} />
-        ) : dueCount === 0 && !data ? (
+        ) : homeSummary?.totalCards === 0 ? (
           <EmptyState name={name} />
-        ) : dueCount === 0 ? (
-          <AllDoneState name={name} recentCards={recentCards} />
-        ) : (
+        ) : dueCount > 0 ? (
           <DailyPickupState
             name={name}
             dueCount={dueCount}
             counts={counts}
             recentCards={recentCards}
+          />
+        ) : (
+          <AllDoneState
+            name={name}
+            todayStats={homeSummary?.todayStats ?? { reviewed: 0, again: 0 }}
+            nextBatchLabel={computeNextBatchLabel(homeSummary?.nextDueAt ?? null)}
           />
         )}
       </ScrollView>
@@ -159,13 +182,29 @@ function EmptyState({ name }: { name: string }) {
 }
 
 /** H.1 — Continued today: filled chip, Tudo pronto, due-0 tile, + Add alt, today stats */
-function AllDoneState({ name, recentCards }: { name: string; recentCards: DueCard[] }) {
+function AllDoneState({
+  name,
+  todayStats,
+  nextBatchLabel,
+}: {
+  name: string;
+  todayStats: { reviewed: number; again: number };
+  nextBatchLabel: string;
+}) {
+  const { reviewed, again } = todayStats;
+  const accuracy = reviewed > 0 ? `${Math.round(((reviewed - again) / reviewed) * 100)}%` : '—';
+
   return (
     <View style={styles.stateContainer}>
       <Greeting text={withName('Tudo pronto', name)} subtitle="All caught up for today." />
 
       {/* Due tile — 0 due, shows next-batch chip */}
-      <DueTile dueCount={0} counts={{ new: 0, learning: 0, review: 0 }} allDone />
+      <DueTile
+        dueCount={0}
+        counts={{ new: 0, learning: 0, review: 0 }}
+        allDone
+        nextBatchLabel={nextBatchLabel}
+      />
 
       <AltButton label="+ Add" onPress={() => router.navigate('/(tabs)/add')} />
 
@@ -179,7 +218,7 @@ function AllDoneState({ name, recentCards }: { name: string; recentCards: DueCar
             reviewed
           </Body>
           <Body surface="light" weight="bold" size={12}>
-            {recentCards.length > 0 ? '—' : '0'}
+            {reviewed}
           </Body>
         </View>
         <View style={styles.statRow}>
@@ -187,7 +226,7 @@ function AllDoneState({ name, recentCards }: { name: string; recentCards: DueCar
             accuracy
           </Body>
           <Body surface="light" weight="bold" size={12}>
-            —
+            {accuracy}
           </Body>
         </View>
       </Card>
@@ -205,7 +244,7 @@ function DailyPickupState({
   name: string;
   dueCount: number;
   counts: { new: number; learning: number; review: number };
-  recentCards: DueCard[];
+  recentCards: RecentCard[];
 }) {
   const mins = Math.round(dueCount * 0.3);
   const subtitle = `${dueCount} cards due · about ${mins} minute${mins !== 1 ? 's' : ''}.`;
@@ -261,10 +300,12 @@ function DueTile({
   dueCount,
   counts,
   allDone,
+  nextBatchLabel,
 }: {
   dueCount: number;
   counts: { new: number; learning: number; review: number };
   allDone: boolean;
+  nextBatchLabel?: string;
 }) {
   return (
     <Card style={styles.dueTile}>
@@ -274,7 +315,7 @@ function DueTile({
       <Num surface="light">{dueCount}</Num>
       <View style={styles.chipRow}>
         {allDone ? (
-          <Chip label="next batch · 4h" variant="brand" />
+          <Chip label={nextBatchLabel ?? 'next batch · —'} variant="brand" />
         ) : (
           <>
             {counts.new > 0 && <Chip label={`${counts.new} new`} variant="brand" />}
@@ -288,7 +329,7 @@ function DueTile({
 }
 
 /** recently added section label + word cards */
-function RecentlyAdded({ cards }: { cards: DueCard[] }) {
+function RecentlyAdded({ cards }: { cards: RecentCard[] }) {
   return (
     <View style={styles.recentlySection}>
       <Mono surface="light" style={styles.sectionLabel}>

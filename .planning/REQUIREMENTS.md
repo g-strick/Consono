@@ -15,20 +15,20 @@
 - [ ] **RVEW-01**: Review front shows only a gold play button and "O que ouves?" — no word, no image
 - [ ] **RVEW-02**: Reveal shows image, gendered word, stress marker (display-only), sentence, single sentence-audio control, and FSRS rating buttons
 - [ ] **RVEW-03**: Session intro shows card count, breakdown (new/learning/review), and estimated time
-- [ ] **RVEW-04**: Session done screen uses cobalt surface; shows reviewed count, accuracy, time, streak delta
+- [x] **RVEW-04**: Session done screen uses cobalt surface; shows reviewed count, accuracy, time, streak delta
 - [ ] **RVEW-05**: Audio speed toggle on front (0.7×, 1.0×, 1.2×)
 
 ### Home
 
-- [ ] **HOME-01**: First-run state when deck is empty (prompt + word suggestions)
-- [ ] **HOME-02**: Daily pickup state — due count, est. time, recently added word, Start review button
-- [ ] **HOME-03**: All-done state — next batch time, today's session stats, Add a word + Study ahead
-- [ ] **HOME-04**: Streak-at-risk state — triggers after 6pm when queue not yet done
+- [x] **HOME-01**: First-run state when deck is empty (prompt + word suggestions)
+- [x] **HOME-02**: Daily pickup state — due count, est. time, recently added word, Start review button
+- [x] **HOME-03**: All-done state — next batch time, today's session stats, Add a word + Study ahead
+- [x] **HOME-04**: Streak-at-risk state — triggers after 6pm when queue not yet done
 - [ ] **HOME-05**: Real user name via /users/me endpoint (removes hardcoded "Léo")
 
 ### Streak
 
-- [ ] **STRK-01**: Streak chip shows real count; 3 states: continued (filled cobalt), at-risk (outline), inactive (gray)
+- [x] **STRK-01**: Streak chip shows real count; 3 states: continued (filled cobalt), at-risk (outline), inactive (gray)
 - [ ] **STRK-02**: Chip animates at-risk → continued on session complete (280ms fill, no scale/bounce)
 - [ ] **STRK-03**: Streak detail screen with period toggle (month / year / lifetime), default year
 - [ ] **STRK-04**: GitHub-style activity heatmap (53w × 7d, 4-stop cobalt ramp)

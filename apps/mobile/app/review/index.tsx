@@ -13,11 +13,6 @@ import { StreakChip } from '@/src/components/StreakChip';
 
 type Phase = 'intro' | 'front' | 'back' | 'done';
 
-// Real streak wiring lands in Phase 2 (STRK-01/STRK-02). For the v6 reskin the
-// chip state is what matters (at-risk pre-completion → continued on done); the
-// count is a placeholder until the streak aggregation endpoint exists.
-const STREAK_PLACEHOLDER = 12;
-
 // v6 waveform — a static row of bars rendered on the audio-only front.
 // Heights (px, within a 30px band) approximate an audio waveform; plain Views
 // keep this dependency-free (no react-native-svg / buffer polyfill needed).
@@ -37,6 +32,14 @@ export default function ReviewScreen() {
     queryKey: ['cards', 'due'],
     queryFn: () => api.getDueCards(),
   });
+
+  // Real streak (STRK-01/STRK-02): drives the intro at-risk → done continued chips.
+  const { data: homeSummary } = useQuery({
+    queryKey: ['home', 'summary'],
+    queryFn: () => api.getHomeSummary(),
+    staleTime: 30_000,
+  });
+  const streakCount = homeSummary?.streak.count ?? 0;
 
   // OLED night theme (DSGN-01): dark mode + night hours → 'oled', else 'light'.
   const nightSurface = useNightSurface();
@@ -63,6 +66,7 @@ export default function ReviewScreen() {
 
   function exitReview() {
     queryClient.invalidateQueries({ queryKey: ['cards', 'due'] });
+    queryClient.invalidateQueries({ queryKey: ['home', 'summary'] });
     router.back();
   }
 
@@ -79,6 +83,20 @@ export default function ReviewScreen() {
       await soundRef.current?.unloadAsync();
       const { sound } = await Audio.Sound.createAsync({ uri: url });
       soundRef.current = sound;
+      await sound.playAsync();
+    } catch {
+      // audio failure is non-fatal
+    }
+  }, []);
+
+  // Per-tap slow replay (RVEW-05 revised, D-09/D-10): plays the current audio at a
+  // reduced rate with corrected pitch. Not sticky — does not touch users.audio_speed.
+  const playAudioAtRate = useCallback(async (url: string, rate: number) => {
+    try {
+      await soundRef.current?.unloadAsync();
+      const { sound } = await Audio.Sound.createAsync({ uri: url });
+      soundRef.current = sound;
+      await sound.setRateAsync(rate, true);
       await sound.playAsync();
     } catch {
       // audio failure is non-fatal
@@ -167,7 +185,10 @@ export default function ReviewScreen() {
               × Exit
             </Action>
           </TouchableOpacity>
-          <StreakChip count={STREAK_PLACEHOLDER} state="at-risk" />
+          <StreakChip
+            count={streakCount}
+            state={homeSummary?.streak.reviewedToday ? 'continued' : 'at-risk'}
+          />
         </View>
         <View className="flex-1 items-center justify-center px-8 gap-5">
           <Display surface={nightSurface} size={40}>
@@ -227,7 +248,7 @@ export default function ReviewScreen() {
             </Action>
           </TouchableOpacity>
           {/* continued state celebrates the streak tick via the 280ms fill */}
-          <StreakChip count={STREAK_PLACEHOLDER + 1} state="continued" />
+          <StreakChip count={streakCount} state="continued" />
         </View>
 
         <View className="flex-1 items-center justify-center px-8 gap-4">
@@ -349,9 +370,18 @@ export default function ReviewScreen() {
             O que ouves?
           </Display>
 
-          <Mono surface={nightSurface} tone="faint">
-            tap to replay · 0.7× · 1.0× · 1.2×
-          </Mono>
+          {/* per-tap turtle slow replay (~0.7x) — compact inline control */}
+          <TouchableOpacity
+            onPress={() =>
+              currentCard.sentence_audio_url && playAudioAtRate(currentCard.sentence_audio_url, 0.7)
+            }
+            className="rounded-full px-4 py-2"
+            style={{ backgroundColor: isOled ? colors.oledElevated : colors.paperSoft }}
+          >
+            <Mono surface={nightSurface} tone="faint">
+              🐢 slow
+            </Mono>
+          </TouchableOpacity>
         </View>
 
         <View className="px-5 pb-6 gap-3">

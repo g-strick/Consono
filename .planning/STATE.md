@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 2 context gathered. 02-CONTEXT.md captures: streak = any-review-per-day / always-at-risk-if-due / local-midnight; first-run via total-card-count; next-batch from earliest due_at; today-stats from reviews table; RVEW-05 revised to a Duolingo-style slow (turtle) replay (no speed-up). Card editing + settings confirmed deferred to Phase 5.'
-last_updated: '2026-06-22T03:16:27.576Z'
+stopped_at: 'Phase 02 COMPLETE — UAT 5/5 approved on device (real streak count + at-risk→continued 280ms fill, audio-only front, per-tap 🐢 slow replay ~0.7x, cobalt done, Home cache refresh). All 3 plans done (02-01 endpoint, 02-02 home wiring, 02-03 review streak + slow audio). Ready for next phase.'
+last_updated: '2026-06-22T18:00:00.000Z'
 progress:
   total_phases: 9
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 9
-  completed_plans: 6
-  percent: 11
+  completed_plans: 8
+  percent: 22
 ---
 
 # LingoCards — Project State
@@ -20,16 +20,23 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 01.1 — v6-visual-redesign
+**Current focus:** Phase 02 — review-loop-home-states
 
 ## Current Position
 
-Phase: 01.1 (v6-visual-redesign) — ✓ COMPLETE (all 6 plans executed)
-Plan: 6 of 6 (Plans 01–06 complete)
+Phase: 02 (review-loop-home-states) — ✓ COMPLETE (UAT 5/5)
+Plan: 3 of 3 done
 
-- **Phase:** 1.1 of 7 — v6 Visual Redesign (inserted; whole-app reskin to v6 handoff)
-- **Status:** Ready to execute
-- **Progress:** █░░░░░░░░░ 14% (1 of 7 phases complete)
+- **Status:** Phase 02 verified on device; ready to start next phase
+- **Progress:** [██░░░░░░░░] 22% (2/9 phases)
+
+## Phase 2 Status — ✓ Complete (UAT 5/5)
+
+| Plan | Description                                                | Status               |
+| ---- | ---------------------------------------------------------- | -------------------- |
+| 2.1  | GET /home/summary aggregation + HomeSummary client/types   | ✓ Complete (7521b28) |
+| 2.2  | Home screen wired to real data (states/streak/stats/batch) | ✓ Complete (606c68e) |
+| 2.3  | Review streak chips + per-tap 🐢 slow replay (~0.7x)       | ✓ Complete (764ed34) |
 
 ## Phase 1 Status — ✓ Complete (UAT 5/5)
 
@@ -53,6 +60,10 @@ Plan: 6 of 6 (Plans 01–06 complete)
 - kindOverride is null by default; clearing the field resets it per detector contract
 - detectKind test file uses typed node assertions (no @types/jest) — Jest migration is trivial when added
 - LoadingStep pipeline rows are static placeholders; live status wired in Phase 4 ADD-01
+- Streak uses local-day-key (getFullYear/getMonth/getDate) for D-02 local midnight boundary
+- Reviews scoped via inArray(card_id, userCardIds) since reviews table has no user_id (T-02-01)
+- recentCards = 3 most-recently-created by created_at desc, not due cards (D-08)
+- nextDueAt = earliest future due_at via gt(due_at, now) ordered asc (D-12)
 
 ## Blockers / Concerns
 
@@ -60,7 +71,8 @@ Plan: 6 of 6 (Plans 01–06 complete)
 
 ## Session Continuity
 
-Last session: 2026-06-22
-Stopped at: Phase 2 context gathered. 02-CONTEXT.md captures: streak = any-review-per-day / always-at-risk-if-due / local-midnight; first-run via total-card-count; next-batch from earliest due_at; today-stats from reviews table; RVEW-05 revised to a Duolingo-style slow (turtle) replay (no speed-up). Card editing + settings confirmed deferred to Phase 5.
-Next: /gsd:plan-phase 2 (Review Loop + Home States). Carry-forward follow-up: night-theme UAT test #7 still not run (time-gated).
-Resume file: .planning/phases/02-review-loop-home-states/02-CONTEXT.md
+Last session: 2026-06-22T17:33:36.614Z
+Stopped at: Completed 02-01-PLAN.md — GET /home/summary endpoint, pure streak/today-stats
+logic (15 vitest tests pass), mobile getHomeSummary() client method.
+Next: Execute 02-02-PLAN.md (Home screen real data wiring).
+Resume file: None
