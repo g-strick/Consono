@@ -119,6 +119,7 @@ Test what would hurt to break; skip the rest. Vitest; patterns and layout in `.p
 
 - **Issues:** Use `gh issue create` for any bug/feature/ADR-needed found outside the current task. **Don't silently fix unrelated bugs** — file it, link it, decide later. Labels: `bug`, `feature`, `chore`, `adr`, phase (`v0`/`v1`/`v2`), size (`size/s`…`size/xxl`).
 - **Commits:** Conventional Commits via commitlint (`feat:`, `fix:`, `chore:`, `docs:`, `refactor:`, `test:`). Explain _why_, not just _what_. Branch off `main`, PR back to `main`.
+- **PRs via `gh`:** `gh` isn't logged in (the sandbox proxy only auths `git`). Before any `gh` call, load the token from the gitignored `.env`: `export GH_TOKEN=$(grep '^GH_TOKEN=' .env | cut -d= -f2-)`. Never commit the token value.
 - **Releases:** `release-please` runs on every push to `main` — merge its PR to ship. Don't edit `CHANGELOG.md` manually.
 
 ---
