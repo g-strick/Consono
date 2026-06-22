@@ -56,24 +56,22 @@
 
 ## Phase 2: Review Loop + Home States
 
-**Goal:** Review matches v5 design spec. Home shows the right state for every moment of the day.
+**Goal:** Wire real data into the v6 Review loop and Home screen — real streak, the four Home states by deck/time/session data, real today-stats + next-batch, and a Duolingo-style slow-audio replay. (Layouts are locked from Phase 1.1; this phase is data-wiring only.)
 
 **Requirements:** RVEW-01, RVEW-02, RVEW-03, RVEW-04, RVEW-05, HOME-01, HOME-02, HOME-03, HOME-04, HOME-05, STRK-01, STRK-02
 
-**Plans:**
+**Plans:** 3 plans
 
-1. Audio-first review front (gold play button, waveform, "O que ouves?", Don't know / Reveal)
-2. Reveal screen (image, word/stress/gender, sentence + audio, FSRS buttons)
-3. Session intro + session done (cobalt surface, stats)
-4. Home 4 states (first-run, daily, all-done, streak-at-risk)
-5. Real streak chip (3 states + 280ms fill transition on completion)
+- [ ] 02-01-PLAN.md — `/home/summary` aggregation endpoint (pure unit-tested streak + today-stats logic, totalCards/nextDueAt/recentCards) + mobile `getHomeSummary()` client · wave 1
+- [ ] 02-02-PLAN.md — Home screen wiring: four states by totalCards/due, real streak chip (no 6pm gate), real today stats + accuracy, live next-batch countdown, recently-added = newest cards, real name · wave 2
+- [ ] 02-03-PLAN.md — Review wiring: real streak into intro/done chips (280ms fill on completion), invalidate home summary on done, per-tap turtle slow replay (~0.7×, revised RVEW-05) · wave 2
 
 **Success Criteria:**
 
 1. Review front shows no text or image — only audio play button
-2. Home state matches the time of day and deck state correctly
-3. Streak chip reflects real streak, transitions visually on session complete
-4. Session done screen uses cobalt surface
+2. Home state matches the deck/time/session state correctly (first-run / daily / all-done; at-risk via chip)
+3. Streak chip reflects the real streak and transitions visually (at-risk → continued) on session complete
+4. Session done screen uses cobalt surface and shows real today-session stats
 
 ---
 
