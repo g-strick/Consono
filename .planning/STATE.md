@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 01.1 COMPLETE — all 6 plans executed (v6 visual redesign). Final: Plan 06 streak detail (Heatmap + RatingDistribution + streak/index). Commits: 55442d8, e34cf4e, 0e3c6c0.'
-last_updated: '2026-06-21T00:00:00Z'
+stopped_at: 'Phase 2 context gathered — 02-CONTEXT.md written (streak rules, home states, today-stats/next-batch, Duolingo-style slow audio). Ready for plan-phase 2.'
+last_updated: '2026-06-22T00:00:00Z'
 progress:
   total_phases: 9
   completed_phases: 0
@@ -60,7 +60,7 @@ Plan: 6 of 6 (Plans 01–06 complete)
 
 ## Session Continuity
 
-Last session: 2026-06-21
-Stopped at: Phase 01.1 COMPLETE + UAT PASSED (8 pass / 1 skip / 0 open issues, 01.1-UAT.md commit 28b953e). Cold-start blocker found during UAT (react-native-svg→buffer red-box) and fixed inline by replacing the review waveform with Views + dropping react-native-svg (commit d19458d).
-Next: Plan/execute Phase 2 (Review Loop + Home States). Two deferred follow-ups: (1) night-theme UAT test #7 not run (time-gated); (2) real streak count/aggregation — Home chip is hardcoded to 1 (Phase 2/3 STRK).
-Resume file: None
+Last session: 2026-06-22
+Stopped at: Phase 2 context gathered. 02-CONTEXT.md captures: streak = any-review-per-day / always-at-risk-if-due / local-midnight; first-run via total-card-count; next-batch from earliest due_at; today-stats from reviews table; RVEW-05 revised to a Duolingo-style slow (turtle) replay (no speed-up). Card editing + settings confirmed deferred to Phase 5.
+Next: /gsd:plan-phase 2 (Review Loop + Home States). Carry-forward follow-up: night-theme UAT test #7 still not run (time-gated).
+Resume file: .planning/phases/02-review-loop-home-states/02-CONTEXT.md
