@@ -60,9 +60,9 @@
 
 **Requirements:** RVEW-01, RVEW-02, RVEW-03, RVEW-04, RVEW-05, HOME-01, HOME-02, HOME-03, HOME-04, HOME-05, STRK-01, STRK-02
 
-**Plans:** 1/3 plans executed
+**Plans:** 3 plans
 
-- [x] 02-01-PLAN.md — `/home/summary` aggregation endpoint (pure unit-tested streak + today-stats logic, totalCards/nextDueAt/recentCards) + mobile `getHomeSummary()` client · wave 1
+- [ ] 02-01-PLAN.md — `/home/summary` aggregation endpoint (pure unit-tested streak + today-stats logic, totalCards/nextDueAt/recentCards) + mobile `getHomeSummary()` client · wave 1
 - [ ] 02-02-PLAN.md — Home screen wiring: four states by totalCards/due, real streak chip (no 6pm gate), real today stats + accuracy, live next-batch countdown, recently-added = newest cards, real name · wave 2
 - [ ] 02-03-PLAN.md — Review wiring: real streak into intro/done chips (280ms fill on completion), invalidate home summary on done, per-tap turtle slow replay (~0.7×, revised RVEW-05) · wave 2
 
