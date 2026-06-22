@@ -4,6 +4,7 @@ import { generateRoute } from './routes/generate.js';
 import { cardsRoute } from './routes/cards.js';
 import { reviewsRoute } from './routes/reviews.js';
 import { audioRoute } from './routes/audio.js';
+import { usersRoute } from './routes/users.js';
 
 const app = new Hono();
 
@@ -11,6 +12,7 @@ app.route('/generate', generateRoute);
 app.route('/cards', cardsRoute);
 app.route('/reviews', reviewsRoute);
 app.route('/audio', audioRoute);
+app.route('/users', usersRoute);
 
 app.get('/health', (c) => c.json({ ok: true }));
 

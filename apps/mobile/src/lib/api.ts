@@ -49,8 +49,6 @@ export interface GenerateDraft {
       sounds_like: string | null;
       sentence_candidates: [string, string, string, string];
     };
-    audio_url: string;
-    audio_duration_ms: number;
     images: ImageResult[];
   };
 }
@@ -73,15 +71,22 @@ export interface DueCard {
   due_at: string;
 }
 
+export interface Me {
+  id: string;
+  name: string;
+  audio_speed: number;
+}
+
 export const api = {
+  getMe() {
+    return request<Me>('/users/me');
+  },
+
   generate(input_text: string, kind: CardKind) {
     return request<GenerateDraft>('/generate', {
       method: 'POST',
       body: JSON.stringify({ input_text, kind }),
-    }).then((data) => ({
-      ...data,
-      draft: { ...data.draft, audio_url: `${BASE}${data.draft.audio_url}` },
-    }));
+    });
   },
 
   approveCard(body: {

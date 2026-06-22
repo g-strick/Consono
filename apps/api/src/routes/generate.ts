@@ -1,12 +1,10 @@
 import { Hono } from 'hono';
 import { z } from 'zod';
-import { db, pending_cards, audio_clips } from '@portuguese-app/db';
+import { db, pending_cards } from '@portuguese-app/db';
 import { eq } from 'drizzle-orm';
 import { extractWordFields } from '../../../mobile/src/providers/llm.js';
-import { synthesize } from '../../../mobile/src/providers/tts.js';
 import { searchImages } from '../../../mobile/src/providers/image-search.js';
 import { V0_USER_ID } from '../lib/constants.js';
-import { contentHash } from '../lib/audio.js';
 
 export const generateRoute = new Hono();
 
@@ -31,28 +29,8 @@ generateRoute.post('/', async (c) => {
   try {
     // Sentence kind uses word prompt as placeholder at V0
     const fields = await extractWordFields(input_text);
-
-    const [audio, images] = await Promise.all([
-      synthesize(fields.lemma),
-      searchImages(fields.image_search_query),
-    ]);
-
-    const hash = contentHash(fields.lemma);
-
-    // Upsert audio_clip record — content-addressed, safe to call repeatedly
-    await db
-      .insert(audio_clips)
-      .values({
-        content_hash: hash,
-        text: fields.lemma,
-        provider: 'narakeet',
-        voice_id: 'felipe',
-        storage_url: audio.audioUrl,
-        duration_ms: audio.durationMs,
-      })
-      .onConflictDoNothing();
-
-    const draft = { fields, audio_hash: hash, images };
+    const images = await searchImages(fields.image_search_query);
+    const draft = { fields, images };
 
     await db
       .update(pending_cards)
@@ -61,12 +39,7 @@ generateRoute.post('/', async (c) => {
 
     return c.json({
       pending_card_id: pending.id,
-      draft: {
-        fields,
-        audio_url: `/audio/${hash}`,
-        audio_duration_ms: audio.durationMs,
-        images,
-      },
+      draft: { fields, images },
     });
   } catch (err) {
     await db
