@@ -35,6 +35,17 @@
     "*.{js,cjs,mjs,json,yaml,yml,md}": "prettier --write"
   },
   "packageManager": "pnpm@11.1.2",
+  "pnpm": {
+    "supportedArchitectures": {
+      "os": [
+        "linux",
+        "darwin"
+      ],
+      "cpu": [
+        "arm64"
+      ]
+    }
+  },
   "private": true,
   "scripts": {
     "dev": "cd apps/mobile && corepack pnpm dev",
