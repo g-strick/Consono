@@ -17,13 +17,11 @@ The daily review loop must work reliably. If cards don't show up on schedule and
 - ✓ FSRS scheduling after each review — v0
 - ✓ Cards library screen — v0
 - ✓ Basic home screen — v0
+- ✓ CORE-04: Sentence audio plays on review card front — Phase 1
+- ✓ CORE-05: Sentence audio generated and plays on reveal — Phase 1
+- ✓ HOME-05: Real user name from /users/me endpoint — Phase 1
 
 ### Active
-
-**Core flow**
-
-- [ ] CORE-04: Sentence audio plays on review card front
-- [ ] CORE-05: Sentence audio generated and plays on reveal
 
 **Review**
 
@@ -39,7 +37,6 @@ The daily review loop must work reliably. If cards don't show up on schedule and
 - [ ] HOME-02: Daily pickup state (due count, estimated time, recently added)
 - [ ] HOME-03: All-done state (next batch time, today's session stats)
 - [ ] HOME-04: Streak-at-risk state (after 6pm, queue not done)
-- [ ] HOME-05: Real user name from /users/me endpoint
 
 **Streak**
 
@@ -126,4 +123,4 @@ The daily review loop must work reliably. If cards don't show up on schedule and
 
 ---
 
-_Last updated: 2026-06-02 after initial project planning_
+_Last updated: 2026-06-20 after Phase 1 (Core Flow Fixed)_

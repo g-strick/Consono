@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 2 context gathered — 02-CONTEXT.md written (streak rules, home states, today-stats/next-batch, Duolingo-style slow audio). Ready for plan-phase 2.'
-last_updated: '2026-06-22T00:00:00Z'
+stopped_at: 'Phase 2 context gathered. 02-CONTEXT.md captures: streak = any-review-per-day / always-at-risk-if-due / local-midnight; first-run via total-card-count; next-batch from earliest due_at; today-stats from reviews table; RVEW-05 revised to a Duolingo-style slow (turtle) replay (no speed-up). Card editing + settings confirmed deferred to Phase 5.'
+last_updated: '2026-06-22T03:16:27.576Z'
 progress:
   total_phases: 9
-  completed_phases: 0
-  total_plans: 6
+  completed_phases: 1
+  total_plans: 9
   completed_plans: 6
-  percent: 100
+  percent: 11
 ---
 
 # LingoCards — Project State
@@ -28,7 +28,7 @@ Phase: 01.1 (v6-visual-redesign) — ✓ COMPLETE (all 6 plans executed)
 Plan: 6 of 6 (Plans 01–06 complete)
 
 - **Phase:** 1.1 of 7 — v6 Visual Redesign (inserted; whole-app reskin to v6 handoff)
-- **Status:** Phase 01.1 complete — ready for verify/UAT, then Phase 2
+- **Status:** Ready to execute
 - **Progress:** █░░░░░░░░░ 14% (1 of 7 phases complete)
 
 ## Phase 1 Status — ✓ Complete (UAT 5/5)
