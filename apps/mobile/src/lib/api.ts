@@ -36,21 +36,34 @@ export interface ImageResult {
   attribution: string;
 }
 
+/** Full set of AI-generated word fields, including image_search_query for re-fetch. */
+export interface WordFields {
+  lemma: string;
+  gender: 'masculine' | 'feminine' | 'common';
+  gendered_form: string;
+  stress_marker: string;
+  usage_context: string;
+  register_tag: 'formal' | 'neutral' | 'informal' | 'slang' | 'vulgar';
+  sounds_like: string | null;
+  image_search_query: string;
+  sentence_candidates: [string, string, string, string];
+}
+
 export interface GenerateDraft {
   pending_card_id: number;
   draft: {
-    fields: {
-      lemma: string;
-      gender: 'masculine' | 'feminine' | 'common';
-      gendered_form: string;
-      stress_marker: string;
-      usage_context: string;
-      register_tag: 'formal' | 'neutral' | 'informal' | 'slang' | 'vulgar';
-      sounds_like: string | null;
-      sentence_candidates: [string, string, string, string];
-    };
+    fields: WordFields;
     images: ImageResult[];
   };
+}
+
+export interface GenerateFieldsResult {
+  pending_card_id: number;
+  fields: WordFields;
+}
+
+export interface GenerateImagesResult {
+  images: ImageResult[];
 }
 
 export interface DueCard {
@@ -195,6 +208,20 @@ export const api = {
     return request<GenerateDraft>('/generate', {
       method: 'POST',
       body: JSON.stringify({ input_text, kind }),
+    });
+  },
+
+  generateFields(input_text: string, kind: CardKind) {
+    return request<GenerateFieldsResult>('/generate/fields', {
+      method: 'POST',
+      body: JSON.stringify({ input_text, kind }),
+    });
+  },
+
+  generateImages(pending_card_id: number, image_search_query: string) {
+    return request<GenerateImagesResult>('/generate/images', {
+      method: 'POST',
+      body: JSON.stringify({ pending_card_id, image_search_query }),
     });
   },
 
