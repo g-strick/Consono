@@ -94,6 +94,90 @@ export interface HomeSummary {
   recentCards: RecentCard[];
 }
 
+/** Shared rating counts shape — used in month/year/lifetime periods. */
+interface RatingCounts {
+  again: number;
+  hard: number;
+  good: number;
+  easy: number;
+}
+
+/**
+ * Aggregated streak-detail payload from GET /streak/stats.
+ *
+ * retention fields are integer percentages (0–100), not fractions.
+ * The route multiplies the lib's 0.0–1.0 fraction × 100 before emitting.
+ *
+ * longestDates is a preformatted 'mmm d – mmm d' string (e.g. "jan 4 – jan 21")
+ * matching the UI-SPEC copy contract, or null when no runs exist in the period.
+ */
+export interface StreakStats {
+  hero: {
+    streak: number;
+    longestAllTime: number;
+    /** Integer 0–100 (True FSRS retention over all time). */
+    retentionAllTime: number;
+  };
+  month: {
+    longestStreak: number;
+    /** 'mmm d – mmm d' or null. */
+    longestDates: string | null;
+    /** Integer 0–100 (True FSRS retention for this calendar month). */
+    retention: number;
+    totalReviews: number;
+    daysActive: number;
+    /** Calendar days in the current month (e.g. 30 or 31). */
+    daysInMonth: number;
+    /** 'YYYY-MM-DD' → review count; for MonthHeatmap. */
+    perDay: Record<string, number>;
+    /** 'YYYY-MM-DD' → heat level 0–3; for MonthHeatmap intensity. */
+    heatLevels: Record<string, number>;
+    ratingCounts: RatingCounts;
+  };
+  year: {
+    longestStreak: number;
+    /** 'mmm d – mmm d' or null. */
+    longestDates: string | null;
+    /** Integer 0–100 (True FSRS retention for trailing 53 weeks). */
+    retention: number;
+    totalReviews: number;
+    daysActive: number;
+    /** 'YYYY-MM-DD' → review count; ~371 daily cells for YearHeatmap (STRK-04 default view). */
+    perDay: Record<string, number>;
+    /** 'YYYY-MM-DD' → heat level 0–3; for YearHeatmap intensity. */
+    heatLevels: Record<string, number>;
+    /** 12 trailing months for the reviews bar chart. */
+    perMonth: Array<{ label: string; count: number }>;
+    ratingCounts: RatingCounts;
+  };
+  lifetime: {
+    longestStreak: number;
+    /** 'mmm d – mmm d' or null. */
+    longestDates: string | null;
+    /** Integer 0–100 (True FSRS retention for all time). */
+    retention: number;
+    totalReviews: number;
+    daysActive: number;
+    /** 'YYYY-MM-DD' of the very first review, or null if no reviews. */
+    firstReviewDate: string | null;
+    /** All months from first review to now; for LifetimeBars chart. */
+    perMonth: Array<{ label: string; count: number }>;
+    ratingCounts: RatingCounts;
+  };
+  /**
+   * All-time personal best runs: top 5 + current (D-05/06).
+   * rank is a number 1–5 for historical bests, or 'current' when the run is ongoing.
+   * startDate/endDate are 'YYYY-MM-DD' day keys.
+   */
+  bests: Array<{
+    rank: number | string;
+    days: number;
+    startDate: string;
+    endDate: string;
+    current: boolean;
+  }>;
+}
+
 export const api = {
   getMe() {
     return request<Me>('/users/me');
@@ -101,6 +185,10 @@ export const api = {
 
   getHomeSummary() {
     return request<HomeSummary>('/home/summary');
+  },
+
+  getStreakStats() {
+    return request<StreakStats>('/streak/stats');
   },
 
   generate(input_text: string, kind: CardKind) {
