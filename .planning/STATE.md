@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: 'Phase 02 COMPLETE — UAT 5/5 approved on device (real streak count + at-risk→continued 280ms fill, audio-only front, per-tap 🐢 slow replay ~0.7x, cobalt done, Home cache refresh). All 3 plans done (02-01 endpoint, 02-02 home wiring, 02-03 review streak + slow audio). Ready for next phase.'
-last_updated: '2026-06-22T18:00:00.000Z'
+stopped_at: Completed 03-01-PLAN.md
+last_updated: '2026-06-24T05:08:27.400Z'
 progress:
   total_phases: 9
   completed_phases: 2
-  total_plans: 9
-  completed_plans: 8
+  total_plans: 14
+  completed_plans: 10
   percent: 22
 ---
 
@@ -20,15 +20,15 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 02 — review-loop-home-states
+**Current focus:** Phase 03 — streak-detail-design-fidelity
 
 ## Current Position
 
-Phase: 02 (review-loop-home-states) — ✓ COMPLETE (UAT 5/5)
-Plan: 3 of 3 done
+Phase: 03 (streak-detail-design-fidelity) — EXECUTING
+Plan: 2 of 5
 
-- **Status:** Phase 02 verified on device; ready to start next phase
-- **Progress:** [██░░░░░░░░] 22% (2/9 phases)
+- **Status:** Ready to execute
+- **Progress:** [███████░░░] 71%
 
 ## Phase 2 Status — ✓ Complete (UAT 5/5)
 
@@ -71,8 +71,14 @@ Plan: 3 of 3 done
 
 ## Session Continuity
 
-Last session: 2026-06-22T17:33:36.614Z
-Stopped at: Completed 02-01-PLAN.md — GET /home/summary endpoint, pure streak/today-stats
+Last session: 2026-06-24T05:08:27.393Z
+Stopped at: Completed 03-01-PLAN.md
 logic (15 vitest tests pass), mobile getHomeSummary() client method.
 Next: Execute 02-02-PLAN.md (Home screen real data wiring).
-Resume file: None
+Resume file: .planning/phases/03-streak-detail-design-fidelity/03-01-SUMMARY.md
+
+## Decisions
+
+- [Phase ?]: computeRetention returns fraction 0-1; route formats as percentage
+- [Phase ?]: computeBestRuns returns [] on no reviews; route renders empty-state row
+- [Phase ?]: inWindow is inclusive at both ends (local-day-key granularity) - Plan 02 must match

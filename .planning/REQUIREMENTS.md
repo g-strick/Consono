@@ -30,10 +30,10 @@
 
 - [x] **STRK-01**: Streak chip shows real count; 3 states: continued (filled cobalt), at-risk (outline), inactive (gray)
 - [ ] **STRK-02**: Chip animates at-risk → continued on session complete (280ms fill, no scale/bounce)
-- [ ] **STRK-03**: Streak detail screen with period toggle (month / year / lifetime), default year
-- [ ] **STRK-04**: GitHub-style activity heatmap (53w × 7d, 4-stop cobalt ramp)
-- [ ] **STRK-05**: Rating distribution stacked horizontal bar (semantic colors: again/hard/good/easy)
-- [ ] **STRK-06**: Personal bests grid (longest streak, total reviews, days active, retention %)
+- [x] **STRK-03**: Streak detail screen with period toggle (month / year / lifetime), default year
+- [x] **STRK-04**: GitHub-style activity heatmap (53w × 7d, 4-stop cobalt ramp)
+- [x] **STRK-05**: Rating distribution stacked horizontal bar (semantic colors: again/hard/good/easy)
+- [x] **STRK-06**: Personal bests grid (longest streak, total reviews, days active, retention %)
 
 ### Add Wizard Polish
 
