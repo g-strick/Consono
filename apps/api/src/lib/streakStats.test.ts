@@ -271,21 +271,19 @@ describe('computeBestRuns', () => {
 
   it('breaks equal-length tie by most-recent end date (D-05)', () => {
     const now = new Date();
-    // Two runs of equal length: recent (days 1-3) and older (days 20-22)
-    // Both 3 days. Recent one should rank higher.
+    // Two historical runs of equal length (3 days each), both far enough in the past to be non-current.
+    // Recent historical: days 5-7 ago (ends 5 days ago)
+    // Older historical:  days 20-22 ago (ends 20 days ago)
+    // Both are 3 days. Recent one should rank higher.
     const dates: Date[] = [];
-    // Recent run: days 1-3 ago
-    for (let i = 1; i <= 3; i++) dates.push(daysAgoFrom(now, i));
-    // gap of ~16 days
-    // Older run: days 20-22 ago
+    for (let i = 5; i <= 7; i++) dates.push(daysAgoFrom(now, i));
     for (let i = 20; i <= 22; i++) dates.push(daysAgoFrom(now, i));
 
     const runs = computeBestRuns(dates, now);
-    // The recent run (ending 1 day ago) should come before the older run (ending 20 days ago)
-    const nonCurrentRuns = runs.filter((r) => !r.current);
-    expect(nonCurrentRuns.length).toBeGreaterThanOrEqual(2);
-    // First run should have a more recent end date than second run
-    expect(nonCurrentRuns[0].end.getTime()).toBeGreaterThan(nonCurrentRuns[1].end.getTime());
+    // Neither run is current (ends 5+ days ago)
+    expect(runs.length).toBeGreaterThanOrEqual(2);
+    // The run ending 5 days ago should rank before the one ending 20 days ago
+    expect(runs[0].end.getTime()).toBeGreaterThan(runs[1].end.getTime());
   });
 
   it('a 1-day run appears in results (D-06)', () => {
