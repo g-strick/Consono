@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-01-PLAN.md
-last_updated: '2026-06-24T05:08:27.400Z'
+stopped_at: Completed 03-05-PLAN.md
+last_updated: '2026-06-24T01:18:00.000Z'
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 14
-  completed_plans: 10
+  completed_plans: 11
   percent: 22
 ---
 
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md` (updated 2026-06-20)
 ## Current Position
 
 Phase: 03 (streak-detail-design-fidelity) — EXECUTING
-Plan: 2 of 5
+Plan: 3 of 5
 
 - **Status:** Ready to execute
-- **Progress:** [███████░░░] 71%
+- **Progress:** [████████░░] 79%
 
 ## Phase 2 Status — ✓ Complete (UAT 5/5)
 
@@ -64,6 +64,8 @@ Plan: 2 of 5
 - Reviews scoped via inArray(card_id, userCardIds) since reviews table has no user_id (T-02-01)
 - recentCards = 3 most-recently-created by created_at desc, not due cards (D-08)
 - nextDueAt = earliest future due_at via gt(due_at, now) ordered asc (D-12)
+- isOledSurface predicate extracted from useNightSurface — pure fn enables unit testing without React render env (Plan 03-05)
+- vi.mock('react-native') pattern for testing RN-importing modules under vitest/node (Plan 03-05)
 
 ## Blockers / Concerns
 
@@ -71,11 +73,10 @@ Plan: 2 of 5
 
 ## Session Continuity
 
-Last session: 2026-06-24T05:08:27.393Z
-Stopped at: Completed 03-01-PLAN.md
-logic (15 vitest tests pass), mobile getHomeSummary() client method.
-Next: Execute 02-02-PLAN.md (Home screen real data wiring).
-Resume file: .planning/phases/03-streak-detail-design-fidelity/03-01-SUMMARY.md
+Last session: 2026-06-24T01:18:00.000Z
+Stopped at: Completed 03-05-PLAN.md — DSGN-01 verified with automated truth-table test
+Next: Phase 03 all 5 plans complete.
+Resume file: .planning/phases/03-streak-detail-design-fidelity/03-05-SUMMARY.md
 
 ## Decisions
 

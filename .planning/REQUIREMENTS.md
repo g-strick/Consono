@@ -61,7 +61,7 @@
 
 ### Design Fidelity
 
-- [ ] **DSGN-01**: OLED theme auto-triggers for night reviews (system dark mode + time-based)
+- [x] **DSGN-01**: OLED theme auto-triggers for night reviews (system dark mode + time-based)
 - [ ] **DSGN-02**: v5 text rules applied — surface-driven; cobalt only on numbers, key actions, active states
 
 ### v6 Visual Redesign (whole-app reskin — Phase 1.1)
