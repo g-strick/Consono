@@ -77,17 +77,17 @@
 
 ## Phase 3: Streak Detail + Design Fidelity
 
-**Goal:** Streak detail screen fully built. v5 text rules applied across the app.
+**Goal:** Streak detail screen fully built with real month/year/lifetime aggregation (stats, heatmaps, rating distribution, personal bests). v5 surface-text rules applied app-wide. DSGN-01 OLED night trigger verified.
 
 **Requirements:** STRK-03, STRK-04, STRK-05, STRK-06, DSGN-01, DSGN-02
 
-**Plans:**
+**Plans:** 5 plans
 
-1. Streak detail screen — period toggle, hero stats (longest, retention, reviews, days active)
-2. GitHub-style heatmap (53w × 7d, 4-stop cobalt ramp, today outlined not filled)
-3. Rating distribution stacked bar chart
-4. v5 text rule pass — surface-driven text colors throughout app
-5. OLED theme (auto night review mode)
+- [ ] 03-01-PLAN.md — Pure unit-tested `streakStats.ts` lib: retention (True FSRS, D-09), personal-best runs (D-04/05/06), days-active / reviews-in-window (D-07), per-day counts + quartile heat levels (STRK-03..06) · wave 1
+- [ ] 03-02-PLAN.md — `GET /streak/stats` route (user-scoped, all-three-periods payload, D-07 windows) + mobile `getStreakStats()` client (STRK-03..06) · wave 2
+- [ ] 03-03-PLAN.md — Wire `streak/index.tsx` to real data: hero, 2×2 stat grid, year/month heatmaps, reviews chart, rating distribution, personal bests (D-07/D-08/D-09 + human-verify checkpoint) (STRK-03..06) · wave 3
+- [ ] 03-04-PLAN.md — App-wide DSGN-02 surface-text audit (fix everything, D-01) + before→after changelog (D-03); audits streak last (DSGN-02) · wave 4
+- [ ] 03-05-PLAN.md — DSGN-01 OLED night-trigger verify: extract pure `isOledSurface` predicate + unit-test truth table (DSGN-01) · wave 1
 
 **Success Criteria:**
 
