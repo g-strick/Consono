@@ -2,6 +2,7 @@ import { ActivityIndicator, FlatList, Text, TouchableOpacity, View } from 'react
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useQuery } from '@tanstack/react-query';
 import { api, DueCard } from '@/src/lib/api';
+import { textColors } from '@/src/lib/theme';
 
 type Filter = 'all' | 'new' | 'learning' | 'review';
 
@@ -107,7 +108,7 @@ function CardRow({ card }: { card: DueCard }) {
 }
 
 function stateColor(state: DueCard['state']): string {
-  if (state === 'new') return '#1F3494';
+  if (state === 'new') return textColors.light.brand;
   if (state === 'learning' || state === 'relearning') return '#F0BF38';
   return '#22C55E';
 }

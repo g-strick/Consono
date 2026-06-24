@@ -506,7 +506,8 @@ function InputStep({
 type PipelineRow = {
   label: string;
   value: string;
-  color: string;
+  color?: string;
+  tone?: 'brand';
   bold?: boolean;
   chip?: boolean;
   mono?: boolean;
@@ -518,14 +519,14 @@ function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string })
     { label: '✓ lemma', value: inputText.trim(), color: colors.good, bold: true },
     { label: '✓ gender', value: 'detecting…', color: colors.good, chip: true },
     { label: '✓ stress', value: '…', color: colors.good, mono: true },
-    { label: '○ images', value: '0 / 4', color: colors.brand, mono: true },
+    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
     { label: '○ i+1 sentences', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
   ];
 
   const sentencePipelineRows: PipelineRow[] = [
     { label: '✓ parsed', value: 'known words', color: colors.good, bold: true },
     { label: '✓ image query', value: 'querying…', color: colors.good, bold: true },
-    { label: '○ images', value: '0 / 4', color: colors.brand, mono: true },
+    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
     { label: '○ gloss', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
   ];
 
@@ -564,13 +565,13 @@ function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string })
               opacity: row.faded ? 0.45 : 1,
             }}
           >
-            <Body size={11} style={{ color: row.color }}>
+            <Body size={11} tone={row.tone} style={row.color ? { color: row.color } : undefined}>
               {row.label}
             </Body>
             {row.chip ? (
               <Chip label="feminine" color={colors.genderFem} />
             ) : row.mono ? (
-              <Mono size={10} style={{ color: row.color }}>
+              <Mono size={10} tone={row.tone} style={row.color ? { color: row.color } : undefined}>
                 {row.value}
               </Mono>
             ) : (
@@ -1090,7 +1091,7 @@ function SavedStep({
             justifyContent: 'center',
           }}
         >
-          <Body size={34} style={{ color: colors.brand }}>
+          <Body size={34} tone="brand">
             ✓
           </Body>
         </View>
