@@ -142,8 +142,10 @@ export function computeHeatLevels(perDay: Map<string, number>): Map<string, 0 | 
   }
 
   // Quartile boundaries (index-based, inclusive lower bound)
-  const q1 = nonZeroCounts[Math.floor(n * 0.25)];
-  const q2 = nonZeroCounts[Math.floor(n * 0.5)];
+  // nonZeroCounts is non-empty and has at least 2 distinct values at this point,
+  // so these indices are always valid; the ?? fallback satisfies noUncheckedIndexedAccess.
+  const q1 = nonZeroCounts[Math.floor(n * 0.25)] ?? nonZeroCounts[0] ?? 0;
+  const q2 = nonZeroCounts[Math.floor(n * 0.5)] ?? nonZeroCounts[0] ?? 0;
 
   for (const [key, count] of perDay.entries()) {
     if (count === 0) {
@@ -208,12 +210,13 @@ export function computeBestRuns(reviewedAtDates: Date[], now: Date): RunEntry[] 
   // Two day-keys are consecutive if their underlying dates differ by exactly 1 day.
   // Use Date arithmetic (not string compare) to handle cross-month boundaries (D-Task2).
   const runs: Omit<RunEntry, 'current'>[] = [];
-  let runStart = activeDayKeys[0];
-  let runEnd = activeDayKeys[0];
+  // activeDayKeys is non-empty (checked above); assert with ! to satisfy noUncheckedIndexedAccess
+  let runStart = activeDayKeys[0]!;
+  let runEnd = activeDayKeys[0]!;
 
   for (let i = 1; i < activeDayKeys.length; i++) {
-    const prevKey = activeDayKeys[i - 1];
-    const currKey = activeDayKeys[i];
+    const prevKey = activeDayKeys[i - 1]!;
+    const currKey = activeDayKeys[i]!;
 
     // Parse day-keys back to local-midnight Dates for safe arithmetic
     const prevDate = parseLocalMidnight(prevKey);
@@ -299,7 +302,11 @@ export function computeBestRuns(reviewedAtDates: Date[], now: Date): RunEntry[] 
 
 /** Parse a 'YYYY-MM-DD' day-key to local midnight Date for safe arithmetic. */
 function parseLocalMidnight(key: string): Date {
-  const [y, m, d] = key.split('-').map(Number);
+  const parts = key.split('-').map(Number);
+  // Day-keys are always 'YYYY-MM-DD'; all three parts are guaranteed present
+  const y = parts[0] ?? 1970;
+  const m = parts[1] ?? 1;
+  const d = parts[2] ?? 1;
   return new Date(y, m - 1, d, 0, 0, 0, 0);
 }
 

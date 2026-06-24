@@ -243,7 +243,7 @@ describe('computeBestRuns', () => {
     const nonCurrentRuns = runs.filter((r) => !r.current);
     // Should be ordered longest-first
     for (let i = 0; i < nonCurrentRuns.length - 1; i++) {
-      expect(nonCurrentRuns[i].days).toBeGreaterThanOrEqual(nonCurrentRuns[i + 1].days);
+      expect(nonCurrentRuns[i]!.days).toBeGreaterThanOrEqual(nonCurrentRuns[i + 1]!.days);
     }
   });
 
@@ -283,7 +283,7 @@ describe('computeBestRuns', () => {
     // Neither run is current (ends 5+ days ago)
     expect(runs.length).toBeGreaterThanOrEqual(2);
     // The run ending 5 days ago should rank before the one ending 20 days ago
-    expect(runs[0].end.getTime()).toBeGreaterThan(runs[1].end.getTime());
+    expect(runs[0]!.end.getTime()).toBeGreaterThan(runs[1]!.end.getTime());
   });
 
   it('a 1-day run appears in results (D-06)', () => {
@@ -293,7 +293,7 @@ describe('computeBestRuns', () => {
     ];
     const runs = computeBestRuns(dates, now);
     expect(runs.length).toBeGreaterThan(0);
-    expect(runs[0].days).toBe(1);
+    expect(runs[0]!.days).toBe(1);
   });
 
   it('handles cross-month consecutive days as a single run', () => {
