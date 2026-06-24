@@ -3,13 +3,13 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 03-05-PLAN.md
-last_updated: '2026-06-24T01:18:00.000Z'
+stopped_at: Completed 03-02-PLAN.md — GET /streak/stats route + mobile StreakStats client
+last_updated: '2026-06-24T05:32:27.865Z'
 progress:
   total_phases: 9
   completed_phases: 2
   total_plans: 14
-  completed_plans: 11
+  completed_plans: 12
   percent: 22
 ---
 
@@ -25,10 +25,10 @@ See: `.planning/PROJECT.md` (updated 2026-06-20)
 ## Current Position
 
 Phase: 03 (streak-detail-design-fidelity) — EXECUTING
-Plan: 3 of 5
+Plan: 4 of 5
 
 - **Status:** Ready to execute
-- **Progress:** [████████░░] 79%
+- **Progress:** [█████████░] 86%
 
 ## Phase 2 Status — ✓ Complete (UAT 5/5)
 
@@ -73,13 +73,15 @@ Plan: 3 of 5
 
 ## Session Continuity
 
-Last session: 2026-06-24T01:18:00.000Z
-Stopped at: Completed 03-05-PLAN.md — DSGN-01 verified with automated truth-table test
-Next: Phase 03 all 5 plans complete.
-Resume file: .planning/phases/03-streak-detail-design-fidelity/03-05-SUMMARY.md
+Last session: 2026-06-24T05:37:00.000Z
+Stopped at: Completed 03-02-PLAN.md — GET /streak/stats route + mobile StreakStats client
+Next: Execute 03-03-PLAN.md (wire streak screen with real data).
+Resume file: .planning/phases/03-streak-detail-design-fidelity/03-02-SUMMARY.md
 
 ## Decisions
 
 - [Phase ?]: computeRetention returns fraction 0-1; route formats as percentage
 - [Phase ?]: computeBestRuns returns [] on no reviews; route renders empty-state row
 - [Phase ?]: inWindow is inclusive at both ends (local-day-key granularity) - Plan 02 must match
+- [Phase 03-02]: lifetime.longestStreak = max days from computeBestRuns all-time, not computeStreak (which is current-only)
+- [Phase 03-02]: retention returned as integer % 0-100 via Math.round(fraction × 100) for hero + all periods
