@@ -12,7 +12,14 @@ import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context'
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, CardKind, GenerateDraft, ImageResult } from '@/src/lib/api';
+import {
+  api,
+  CardKind,
+  GenerateDraft,
+  GenerateFieldsResult,
+  ImageResult,
+  WordFields,
+} from '@/src/lib/api';
 import { detectKind } from '@/src/lib/detectKind';
 import { colors, fonts } from '@/src/lib/theme';
 import { Display, Heading, Body, Mono, Action } from '@/src/components/Type';
@@ -35,6 +42,9 @@ export default function AddScreen() {
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState('');
   const [draft, setDraft] = useState<GenerateDraft | null>(null);
+  // pipelineState: staged pipeline — fields resolve first, then images
+  const [pipelineFields, setPipelineFields] = useState<GenerateFieldsResult | null>(null);
+  const [pipelineImages, setPipelineImages] = useState<ImageResult[] | null>(null);
   const [selectedImage, setSelectedImage] = useState<ImageResult | null>(null);
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
@@ -59,19 +69,64 @@ export default function AddScreen() {
     });
   }
 
-  const generateMutation = useMutation({
-    mutationFn: ({ text, kind: k }: { text: string; kind: CardKind }) => api.generate(text, k),
-    onSuccess: (data, { kind: k }) => {
-      setDraft(data);
-      // In sentence mode, PickSentenceStep is skipped — pre-populate so selectedSentence
-      // is always the final text rather than relying on a fallback at save time.
-      if (k === 'sentence') {
-        setSelectedSentence(data.draft.fields.sentence_candidates[0]);
+  const imagesMutation = useMutation({
+    mutationFn: ({
+      pending_card_id,
+      image_search_query,
+    }: {
+      pending_card_id: number;
+      image_search_query: string;
+    }) => api.generateImages(pending_card_id, image_search_query),
+    onSuccess: (data, { pending_card_id }) => {
+      setPipelineImages(data.images);
+      // Build full GenerateDraft from staged pipeline results
+      if (!pipelineFields) return;
+      const fullDraft: GenerateDraft = {
+        pending_card_id,
+        draft: { fields: pipelineFields.fields, images: data.images },
+      };
+      setDraft(fullDraft);
+      // In sentence mode, PickSentenceStep is skipped — pre-populate selectedSentence
+      if (kind === 'sentence') {
+        setSelectedSentence(pipelineFields.fields.sentence_candidates[0]);
       }
       setStep('pick-image');
     },
     onError: () => {
       setStep('input');
+    },
+  });
+
+  const fieldsMutation = useMutation({
+    mutationFn: ({ text, kind: k }: { text: string; kind: CardKind }) =>
+      api.generateFields(text, k),
+    onSuccess: (data) => {
+      setPipelineFields(data);
+      imagesMutation.mutate({
+        pending_card_id: data.pending_card_id,
+        image_search_query: data.fields.image_search_query,
+      });
+    },
+    onError: () => {
+      setStep('input');
+    },
+  });
+
+  const refreshMutation = useMutation({
+    mutationFn: () => {
+      if (!pipelineFields) throw new Error('No pipeline fields');
+      return api.generateImages(
+        pipelineFields.pending_card_id,
+        pipelineFields.fields.image_search_query,
+      );
+    },
+    onSuccess: (data) => {
+      if (!pipelineFields || !draft) return;
+      const updatedDraft: GenerateDraft = {
+        pending_card_id: pipelineFields.pending_card_id,
+        draft: { fields: pipelineFields.fields, images: data.images },
+      };
+      setDraft(updatedDraft);
     },
   });
 
@@ -95,18 +150,22 @@ export default function AddScreen() {
   function handleGenerate() {
     if (!inputText.trim()) return;
     setStep('loading');
-    generateMutation.mutate({ text: inputText.trim(), kind });
+    fieldsMutation.mutate({ text: inputText.trim(), kind });
   }
 
   function resetFlow() {
     setStep('input');
     setInputText('');
     setDraft(null);
+    setPipelineFields(null);
+    setPipelineImages(null);
     setSelectedImage(null);
     setSelectedSentence('');
     setSavedCardId(null);
     setKindOverride(null);
-    generateMutation.reset();
+    fieldsMutation.reset();
+    imagesMutation.reset();
+    refreshMutation.reset();
     approveMutation.reset();
   }
 
@@ -211,12 +270,20 @@ export default function AddScreen() {
           onInputChange={handleInputChange}
           onKindOverride={handleKindOverride}
           onGenerate={handleGenerate}
-          error={generateMutation.error?.message}
+          error={fieldsMutation.error?.message ?? imagesMutation.error?.message}
           tabBarHeight={tabBarHeight}
         />
       )}
 
-      {step === 'loading' && <LoadingStep kind={kind} inputText={inputText} />}
+      {step === 'loading' && (
+        <LoadingStep
+          kind={kind}
+          inputText={inputText}
+          fieldsComplete={pipelineFields !== null}
+          imageCount={pipelineImages?.length ?? 0}
+          fields={pipelineFields?.fields ?? null}
+        />
+      )}
 
       {step === 'pick-image' && draft && (
         <PickImageStep
@@ -229,6 +296,8 @@ export default function AddScreen() {
             if (!selectedImage) return;
             setStep(kind === 'sentence' ? 'review' : 'pick-sentence');
           }}
+          onRefresh={() => refreshMutation.mutate()}
+          refreshLoading={refreshMutation.isPending}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -510,25 +579,83 @@ type PipelineRow = {
   tone?: 'brand';
   bold?: boolean;
   chip?: boolean;
+  chipColor?: string;
   mono?: boolean;
   faded?: boolean;
 };
 
-function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string }) {
-  const wordPipelineRows: PipelineRow[] = [
-    { label: '✓ lemma', value: inputText.trim(), color: colors.good, bold: true },
-    { label: '✓ gender', value: 'detecting…', color: colors.good, chip: true },
-    { label: '✓ stress', value: '…', color: colors.good, mono: true },
-    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
-    { label: '○ i+1 sentences', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
-  ];
+function LoadingStep({
+  kind,
+  inputText,
+  fieldsComplete,
+  imageCount,
+  fields,
+}: {
+  kind: CardKind;
+  inputText: string;
+  fieldsComplete: boolean;
+  imageCount: number;
+  fields: WordFields | null;
+}) {
+  const genderColor =
+    fields?.gender === 'feminine'
+      ? colors.genderFem
+      : fields?.gender === 'masculine'
+        ? colors.brand
+        : colors.accentDeep;
 
-  const sentencePipelineRows: PipelineRow[] = [
-    { label: '✓ parsed', value: 'known words', color: colors.good, bold: true },
-    { label: '✓ image query', value: 'querying…', color: colors.good, bold: true },
-    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
-    { label: '○ gloss', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
-  ];
+  const wordPipelineRows: PipelineRow[] =
+    fieldsComplete && fields
+      ? [
+          { label: '✓ lemma', value: fields.lemma, color: colors.good, bold: true },
+          {
+            label: '✓ gender',
+            value: fields.gender,
+            color: genderColor,
+            chip: true,
+            chipColor: genderColor,
+          },
+          { label: '✓ stress', value: fields.stress_marker, color: colors.good, mono: true },
+          { label: '✓ sentences', value: '4 ready', color: colors.good, bold: true },
+          {
+            label: '○ images',
+            value: `${imageCount} / 4`,
+            tone: imageCount < 4 ? 'brand' : undefined,
+            color: imageCount >= 4 ? colors.good : undefined,
+            mono: true,
+          },
+        ]
+      : [
+          { label: '… lemma', value: inputText.trim(), faded: true, bold: true },
+          { label: '… gender', value: 'detecting…', faded: true },
+          { label: '… stress', value: '…', faded: true, mono: true },
+          { label: '… sentences', value: 'queued', faded: true },
+          { label: '○ images', value: `${imageCount} / 4`, tone: 'brand', mono: true },
+        ];
+
+  const sentencePipelineRows: PipelineRow[] =
+    fieldsComplete && fields
+      ? [
+          { label: '✓ parsed', value: 'known words', color: colors.good, bold: true },
+          {
+            label: '✓ image query',
+            value: fields.image_search_query,
+            color: colors.good,
+            bold: true,
+          },
+          {
+            label: '○ images',
+            value: `${imageCount} / 4`,
+            tone: imageCount < 4 ? 'brand' : undefined,
+            color: imageCount >= 4 ? colors.good : undefined,
+            mono: true,
+          },
+        ]
+      : [
+          { label: '… parsed', value: 'processing…', faded: true, bold: true },
+          { label: '… image query', value: 'queued', faded: true, bold: true },
+          { label: '○ images', value: `${imageCount} / 4`, tone: 'brand', mono: true },
+        ];
 
   const rows: PipelineRow[] = kind === 'word' ? wordPipelineRows : sentencePipelineRows;
 
@@ -569,7 +696,7 @@ function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string })
               {row.label}
             </Body>
             {row.chip ? (
-              <Chip label="feminine" color={colors.genderFem} />
+              <Chip label={row.value} color={row.chipColor ?? colors.genderFem} />
             ) : row.mono ? (
               <Mono size={10} tone={row.tone} style={row.color ? { color: row.color } : undefined}>
                 {row.value}
@@ -599,6 +726,8 @@ function PickImageStep({
   kind,
   onSelect,
   onNext,
+  onRefresh,
+  refreshLoading,
   tabBarHeight,
 }: {
   images: ImageResult[];
@@ -607,6 +736,8 @@ function PickImageStep({
   kind: CardKind;
   onSelect: (img: ImageResult) => void;
   onNext: () => void;
+  onRefresh: () => void;
+  refreshLoading: boolean;
   tabBarHeight: number;
 }) {
   const genderColor =
@@ -694,9 +825,28 @@ function PickImageStep({
           tap to pick · long-press to preview
         </Body>
 
-        {/* Display-only action chips */}
+        {/* Action chips — ↻ more fires real re-fetch */}
         <View style={{ flexDirection: 'row', gap: 5, marginBottom: 14 }}>
-          <Chip label="↻ more" />
+          <TouchableOpacity onPress={onRefresh} disabled={refreshLoading}>
+            {refreshLoading ? (
+              <View
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 6,
+                  borderWidth: 0.5,
+                  borderColor: 'rgba(0,0,0,0.15)',
+                  backgroundColor: colors.paperSoft,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ActivityIndicator size="small" color={colors.brand} />
+              </View>
+            ) : (
+              <Chip label="↻ more" />
+            )}
+          </TouchableOpacity>
           <Chip label="↑ upload" />
           <Chip label="⌕ refine" />
         </View>
