@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: Completed 03-02-PLAN.md — GET /streak/stats route + mobile StreakStats client
-last_updated: '2026-06-24T18:07:55.136Z'
+status: planned
+stopped_at: Planned Phase 04 — Add Wizard Polish (4 plans)
+last_updated: '2026-06-24T19:00:00.000Z'
 progress:
   total_phases: 9
-  completed_phases: 2
-  total_plans: 14
+  completed_phases: 3
+  total_plans: 18
   completed_plans: 12
-  percent: 22
+  percent: 33
 ---
 
 # LingoCards — Project State
@@ -20,15 +20,34 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 03 — streak-detail-design-fidelity
+**Current focus:** Phase 04 — add-wizard-polish
 
 ## Current Position
 
-Phase: 03 (streak-detail-design-fidelity) — EXECUTING
-Plan: 1 of 5
+Phase: 04 (add-wizard-polish) — READY TO EXECUTE
+Plan: 0 of 4
 
-- **Status:** Executing Phase 03
-- **Progress:** [█████████░] 86%
+- **Status:** Phase 04 planned — ready to execute
+- **Progress:** [███░░░░░░░] 33%
+
+## Phase 4 Status — Planned (Ready to Execute)
+
+| Plan | Description                                                                               | Status    |
+| ---- | ----------------------------------------------------------------------------------------- | --------- |
+| 4.1  | Split /generate into /fields + /images; live LoadingStep pipeline; PickImageStep "↻ more" | ○ Pending |
+| 4.2  | Sentence inline editing in ReviewStep with undo + audio re-generate                       | ○ Pending |
+| 4.3  | Source tagging chips + clipboard auto-detect (DB migration required)                      | ○ Pending |
+| 4.4  | Recent words in InputStep from /home/summary recentCards                                  | ○ Pending |
+
+## Phase 3 Status — ✓ Complete
+
+| Plan | Description                                                      | Status     |
+| ---- | ---------------------------------------------------------------- | ---------- |
+| 3.1  | Pure streakStats.ts lib (retention, personal bests, heat levels) | ✓ Complete |
+| 3.2  | GET /streak/stats route + mobile getStreakStats() client         | ✓ Complete |
+| 3.3  | Wire streak/index.tsx to real data                               | ✓ Complete |
+| 3.4  | App-wide DSGN-02 cobalt body-copy audit + fixes                  | ✓ Complete |
+| 3.5  | DSGN-01 OLED isOledSurface predicate + truth-table test          | ✓ Complete |
 
 ## Phase 2 Status — ✓ Complete (UAT 5/5)
 
@@ -73,10 +92,10 @@ Plan: 1 of 5
 
 ## Session Continuity
 
-Last session: 2026-06-24T05:37:00.000Z
-Stopped at: Completed 03-02-PLAN.md — GET /streak/stats route + mobile StreakStats client
-Next: Execute 03-03-PLAN.md (wire streak screen with real data).
-Resume file: .planning/phases/03-streak-detail-design-fidelity/03-02-SUMMARY.md
+Last session: 2026-06-24T19:00:00.000Z
+Stopped at: Planned Phase 04 — 4 plans written for Add Wizard Polish
+Next: Execute 04-01-PLAN.md (split /generate into /fields + /images; live pipeline LoadingStep; PickImageStep ↻ more).
+Resume file: .planning/phases/04-add-wizard-polish/04-01-PLAN.md
 
 ## Decisions
 
