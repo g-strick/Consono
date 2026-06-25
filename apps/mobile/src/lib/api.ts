@@ -120,6 +120,7 @@ export const api = {
       usage_context?: string;
       sounds_like?: string | null;
       sentence_gloss_en?: string;
+      source_tag?: string;
     };
   }) {
     return request<{ card_id: number }>('/cards', {
