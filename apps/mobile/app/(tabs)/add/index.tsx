@@ -321,6 +321,7 @@ export default function AddScreen() {
           isSaving={approveMutation.isPending}
           error={approveMutation.error?.message}
           onSave={(sentence) => approveMutation.mutate(sentence)}
+          onSentenceEdit={(newSentence) => setSelectedSentence(newSentence)}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -1002,6 +1003,7 @@ function ReviewStep({
   isSaving,
   error,
   onSave,
+  onSentenceEdit,
   tabBarHeight,
 }: {
   draft: GenerateDraft;
@@ -1011,8 +1013,13 @@ function ReviewStep({
   isSaving: boolean;
   error?: string;
   onSave: (sentence: string) => void;
+  onSentenceEdit: (newSentence: string) => void;
   tabBarHeight: number;
 }) {
+  const [editingSentence, setEditingSentence] = useState(false);
+  const [editDraft, setEditDraft] = useState('');
+  const [previousSentence, setPreviousSentence] = useState('');
+
   const f = draft.draft.fields;
   const genderForCard: 'fem' | 'masc' | 'common' =
     f.gender === 'feminine' ? 'fem' : f.gender === 'masculine' ? 'masc' : 'common';
@@ -1063,19 +1070,41 @@ function ReviewStep({
               resizeMode="cover"
             />
 
-            {/* Sentence */}
-            <Body
-              size={13}
-              style={{
-                marginTop: 8,
-                paddingBottom: 8,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.grayRule,
-                borderStyle: 'dashed',
-              }}
-            >
-              {selectedSentence}
-            </Body>
+            {/* Sentence — static or inline edit */}
+            {editingSentence ? (
+              <TextInput
+                value={editDraft}
+                onChangeText={setEditDraft}
+                autoFocus
+                autoCorrect={false}
+                multiline
+                style={{
+                  fontFamily: fonts.display,
+                  fontSize: 13,
+                  lineHeight: 20,
+                  flex: 1,
+                  marginTop: 8,
+                  paddingBottom: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.brand,
+                  borderStyle: 'dashed',
+                  color: '#000000',
+                }}
+              />
+            ) : (
+              <Body
+                size={13}
+                style={{
+                  marginTop: 8,
+                  paddingBottom: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.grayRule,
+                  borderStyle: 'dashed',
+                }}
+              >
+                {selectedSentence}
+              </Body>
+            )}
 
             {/* Sentence audio placeholder */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
@@ -1113,10 +1142,32 @@ function ReviewStep({
               resizeMode="cover"
             />
 
-            {/* Serif sentence headline */}
-            <Display size={18} style={{ marginTop: 10 }}>
-              {selectedSentence}
-            </Display>
+            {/* Serif sentence headline — static or inline edit */}
+            {editingSentence ? (
+              <TextInput
+                value={editDraft}
+                onChangeText={setEditDraft}
+                autoFocus
+                autoCorrect={false}
+                multiline
+                style={{
+                  fontFamily: fonts.display,
+                  fontSize: 18,
+                  lineHeight: 20,
+                  flex: 1,
+                  marginTop: 10,
+                  paddingBottom: 4,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.brand,
+                  borderStyle: 'dashed',
+                  color: '#000000',
+                }}
+              />
+            ) : (
+              <Display size={18} style={{ marginTop: 10 }}>
+                {selectedSentence}
+              </Display>
+            )}
 
             {/* Sentence audio placeholder */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
@@ -1161,42 +1212,90 @@ function ReviewStep({
           </Body>
         )}
 
-        {/* Bottom row: ✎ edit + Save */}
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-          <TouchableOpacity
-            style={{
-              width: 56,
-              height: 48,
-              borderRadius: 16,
-              borderWidth: 0.5,
-              borderColor: 'rgba(0,0,0,0.15)',
-              backgroundColor: colors.paperSoft,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Action tone="muted">✎</Action>
-          </TouchableOpacity>
+        {/* Bottom row: editing mode → Undo + Save edit; normal → ✎ + Save */}
+        {editingSentence ? (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            {/* Undo button — reverts to previousSentence */}
+            <TouchableOpacity
+              onPress={() => {
+                onSentenceEdit(previousSentence);
+                setEditingSentence(false);
+                setEditDraft('');
+              }}
+              style={{
+                width: 80,
+                height: 48,
+                borderRadius: 16,
+                borderWidth: 0.5,
+                borderColor: 'rgba(0,0,0,0.15)',
+                backgroundColor: colors.paperSoft,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Action tone="muted">Undo</Action>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => onSave(selectedSentence)}
-            disabled={isSaving}
-            style={{
-              flex: 1,
-              backgroundColor: colors.brand,
-              borderRadius: 16,
-              paddingVertical: 14,
-              alignItems: 'center',
-              opacity: isSaving ? 0.6 : 1,
-            }}
-          >
-            {isSaving ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Action surface="color">Save</Action>
-            )}
-          </TouchableOpacity>
-        </View>
+            {/* Save edit button — commits editDraft */}
+            <TouchableOpacity
+              onPress={() => {
+                onSentenceEdit(editDraft);
+                setEditingSentence(false);
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: colors.brand,
+                borderRadius: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
+              }}
+            >
+              <Action surface="color">Save edit</Action>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            {/* ✎ edit button — enters editing mode */}
+            <TouchableOpacity
+              onPress={() => {
+                setEditingSentence(true);
+                setEditDraft(selectedSentence);
+                setPreviousSentence(selectedSentence);
+              }}
+              style={{
+                width: 56,
+                height: 48,
+                borderRadius: 16,
+                borderWidth: 0.5,
+                borderColor: 'rgba(0,0,0,0.15)',
+                backgroundColor: colors.paperSoft,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Action tone="muted">✎</Action>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onSave(selectedSentence)}
+              disabled={isSaving}
+              style={{
+                flex: 1,
+                backgroundColor: colors.brand,
+                borderRadius: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
+                opacity: isSaving ? 0.6 : 1,
+              }}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Action surface="color">Save</Action>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </ScrollView>
   );
