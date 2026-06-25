@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -8,6 +9,7 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
@@ -48,6 +50,7 @@ export default function AddScreen() {
   const [selectedImage, setSelectedImage] = useState<ImageResult | null>(null);
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
+  const [selectedSource, setSelectedSource] = useState<string | null>(null);
 
   // Derived kind — recomputed on every render (driven by inputText + override)
   const kind: CardKind = kindOverride ?? detectKind(inputText);
@@ -138,6 +141,7 @@ export default function AddScreen() {
         selected_image_url: selectedImage.url,
         selected_image_attribution: selectedImage.attribution,
         selected_sentence: sentence,
+        edits: { source_tag: selectedSource ?? undefined },
       });
     },
     onSuccess: (data) => {
@@ -163,6 +167,7 @@ export default function AddScreen() {
     setSelectedSentence('');
     setSavedCardId(null);
     setKindOverride(null);
+    setSelectedSource(null);
     fieldsMutation.reset();
     imagesMutation.reset();
     refreshMutation.reset();
@@ -272,6 +277,8 @@ export default function AddScreen() {
           onGenerate={handleGenerate}
           error={fieldsMutation.error?.message ?? imagesMutation.error?.message}
           tabBarHeight={tabBarHeight}
+          selectedSource={selectedSource}
+          onSourceSelect={setSelectedSource}
         />
       )}
 
@@ -349,6 +356,8 @@ function InputStep({
   onGenerate,
   error,
   tabBarHeight,
+  selectedSource,
+  onSourceSelect,
 }: {
   kind: CardKind;
   inputText: string;
@@ -357,8 +366,25 @@ function InputStep({
   onGenerate: () => void;
   error?: string;
   tabBarHeight: number;
+  selectedSource: string | null;
+  onSourceSelect: (src: string | null) => void;
 }) {
   const inputRef = useRef<TextInput>(null);
+
+  // Clipboard auto-detect: on mount when kind === 'sentence', pre-fill from clipboard
+  useEffect(() => {
+    if (kind !== 'sentence') return;
+    (async () => {
+      try {
+        const clipText = await Clipboard.getStringAsync();
+        if (clipText && clipText.trim().split(/\s+/).filter(Boolean).length > 3) {
+          onInputChange(clipText.trim());
+        }
+      } catch {
+        // Clipboard errors are swallowed silently — not shown to user
+      }
+    })();
+  }, []);
   const wordCount =
     inputText.trim() === '' ? 0 : inputText.trim().split(/\s+/).filter(Boolean).length;
   const hasInput = inputText.trim().length > 0;
@@ -489,9 +515,44 @@ function InputStep({
             </Body>
           </Mono>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
-            {['whatsapp', 'instagram', 'netflix', '+ tag'].map((src) => (
-              <Chip key={src} label={src} variant="default" />
-            ))}
+            {(['whatsapp', 'instagram', 'netflix'] as const).map((src) => {
+              const isSelected = selectedSource === src;
+              return (
+                <TouchableOpacity key={src} onPress={() => onSourceSelect(isSelected ? null : src)}>
+                  <Chip label={src} variant={isSelected ? 'brand' : 'default'} />
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              onPress={() => {
+                Alert.prompt(
+                  'Custom source',
+                  'e.g. livro, aula…',
+                  (text) => {
+                    if (text && text.trim()) {
+                      onSourceSelect(text.trim());
+                    }
+                  },
+                  'plain-text',
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? selectedSource
+                    : '',
+                );
+              }}
+            >
+              <Chip
+                label={
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? selectedSource
+                    : '+ tag'
+                }
+                variant={
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? 'brand'
+                    : 'default'
+                }
+              />
+            </TouchableOpacity>
           </View>
           <Body size={11} tone="muted" style={{ marginTop: 6 }}>
             use sentences you read or hear · don't invent
