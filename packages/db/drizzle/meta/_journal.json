@@ -8,6 +8,13 @@
       "when": 1778716089606,
       "tag": "0000_shiny_zombie",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1782351989725,
+      "tag": "0001_redundant_inertia",
+      "breakpoints": true
     }
   ]
 }

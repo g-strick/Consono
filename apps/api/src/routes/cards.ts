@@ -19,6 +19,7 @@ const ApproveInput = z.object({
       usage_context: z.string().optional(),
       sounds_like: z.string().nullable().optional(),
       sentence_gloss_en: z.string().optional(),
+      source_tag: z.string().optional(),
     })
     .optional(),
 });
@@ -103,6 +104,7 @@ cardsRoute.post('/', async (c) => {
       image_attribution: selected_image_attribution,
       sentence_pt: selected_sentence,
       sentence_gloss_en: edits?.sentence_gloss_en,
+      source_tag: edits?.source_tag ?? null,
       sentence_audio_clip_hash: sentenceHash,
     })
     .returning({ id: cards.id });

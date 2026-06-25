@@ -115,6 +115,8 @@ export const cards = pgTable('cards', {
   sentence_audio_clip_hash: text('sentence_audio_clip_hash'),
   /** Hidden in review UI — no translation crutch. Surfaced only in card editor. */
   sentence_gloss_en: text('sentence_gloss_en'),
+  /** Where the user encountered this sentence (e.g. 'whatsapp', 'netflix', or custom). Nullable. */
+  source_tag: text('source_tag'),
 
   // ── FSRS state (ts-fsrs, ADR 0006) ──────────────────────────────────────
   due_at: timestamp('due_at').notNull().defaultNow(),
