@@ -98,18 +98,18 @@
 
 ---
 
-## Phase 4: Add Wizard Polish
+## Phase 4: Add Wizard Polish ✓ Complete (2026-06-25)
 
 **Goal:** Add flow is fast, smart, and feels like the v3 design spec.
 
 **Requirements:** ADD-01, ADD-02, ADD-03, ADD-04, ADD-05, ADD-06
 
-**Plans:** 4 plans
+**Plans:** 4/4 complete
 
-- [ ] 04-01-PLAN.md — Split /generate into /fields + /images; live pipeline LoadingStep (lemma ✓ gender ✓ images N/4); PickImageStep "↻ more" re-fetch (ADD-01, ADD-02) · wave 1
-- [ ] 04-02-PLAN.md — Sentence inline editing in ReviewStep with undo + confirm; audio re-generated at approval (ADD-03) · wave 2
-- [ ] 04-03-PLAN.md — Source tagging: DB migration + interactive source chips + clipboard auto-detect via expo-clipboard (ADD-04, ADD-05) · wave 3
-- [ ] 04-04-PLAN.md — Recent words: InputStep real headwords from /home/summary recentCards (ADD-06) · wave 4
+- [x] 04-01-PLAN.md — Split /generate into /fields + /images; live pipeline LoadingStep (lemma ✓ gender ✓ images N/4); PickImageStep "↻ more" re-fetch (ADD-01, ADD-02) · wave 1
+- [x] 04-02-PLAN.md — Sentence inline editing in ReviewStep with undo + confirm; audio re-generated at approval (ADD-03) · wave 2
+- [x] 04-03-PLAN.md — Source tagging: DB migration + interactive source chips + clipboard auto-detect via expo-clipboard (ADD-04, ADD-05) · wave 3
+- [x] 04-04-PLAN.md — Recent words: InputStep real headwords from /home/summary recentCards (ADD-06) · wave 4
 
 **Success Criteria:**
 

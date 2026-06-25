@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planned
-stopped_at: Planned Phase 04 — Add Wizard Polish (4 plans)
-last_updated: '2026-06-24T19:00:00.000Z'
+status: executing
+stopped_at: Phase 04 complete — advancing to Phase 05
+last_updated: '2026-06-25T00:00:00.000Z'
 progress:
   total_phases: 9
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 18
-  completed_plans: 12
-  percent: 33
+  completed_plans: 18
+  percent: 44
 ---
 
 # LingoCards — Project State
@@ -20,24 +20,24 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 04 — add-wizard-polish
+**Current focus:** Phase 05 — SRS UX + Library
 
 ## Current Position
 
-Phase: 04 (add-wizard-polish) — READY TO EXECUTE
-Plan: 0 of 4
+Phase: 04 (add-wizard-polish) — ✓ COMPLETE
+Next: Phase 05 — srs-ux-library
 
-- **Status:** Phase 04 planned — ready to execute
-- **Progress:** [███░░░░░░░] 33%
+- **Status:** Phase 04 verified and complete
+- **Progress:** [████░░░░░░] 44%
 
-## Phase 4 Status — Planned (Ready to Execute)
+## Phase 4 Status — ✓ Complete (2026-06-25)
 
-| Plan | Description                                                                               | Status    |
-| ---- | ----------------------------------------------------------------------------------------- | --------- |
-| 4.1  | Split /generate into /fields + /images; live LoadingStep pipeline; PickImageStep "↻ more" | ○ Pending |
-| 4.2  | Sentence inline editing in ReviewStep with undo + audio re-generate                       | ○ Pending |
-| 4.3  | Source tagging chips + clipboard auto-detect (DB migration required)                      | ○ Pending |
-| 4.4  | Recent words in InputStep from /home/summary recentCards                                  | ○ Pending |
+| Plan | Description                                                                               | Status     |
+| ---- | ----------------------------------------------------------------------------------------- | ---------- |
+| 4.1  | Split /generate into /fields + /images; live LoadingStep pipeline; PickImageStep "↻ more" | ✓ Complete |
+| 4.2  | Sentence inline editing in ReviewStep with undo + audio re-generate                       | ✓ Complete |
+| 4.3  | Source tagging chips + clipboard auto-detect (DB migration required)                      | ✓ Complete |
+| 4.4  | Recent words in InputStep from /home/summary recentCards                                  | ✓ Complete |
 
 ## Phase 3 Status — ✓ Complete
 
