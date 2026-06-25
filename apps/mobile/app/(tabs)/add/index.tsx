@@ -13,7 +13,7 @@ import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   api,
   CardKind,
@@ -51,6 +51,16 @@ export default function AddScreen() {
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
   const [selectedSource, setSelectedSource] = useState<string | null>(null);
+
+  const { data: homeSummary } = useQuery({
+    queryKey: ['home', 'summary'],
+    queryFn: () => api.getHomeSummary(),
+    staleTime: 60_000,
+  });
+  const recentHeadwords = (homeSummary?.recentCards ?? [])
+    .filter((c) => c.headword != null)
+    .map((c) => c.headword as string)
+    .slice(0, 4);
 
   // Derived kind — recomputed on every render (driven by inputText + override)
   const kind: CardKind = kindOverride ?? detectKind(inputText);
@@ -279,6 +289,7 @@ export default function AddScreen() {
           tabBarHeight={tabBarHeight}
           selectedSource={selectedSource}
           onSourceSelect={setSelectedSource}
+          recentHeadwords={recentHeadwords}
         />
       )}
 
@@ -358,6 +369,7 @@ function InputStep({
   tabBarHeight,
   selectedSource,
   onSourceSelect,
+  recentHeadwords,
 }: {
   kind: CardKind;
   inputText: string;
@@ -368,6 +380,7 @@ function InputStep({
   tabBarHeight: number;
   selectedSource: string | null;
   onSourceSelect: (src: string | null) => void;
+  recentHeadwords: string[];
 }) {
   const inputRef = useRef<TextInput>(null);
 
@@ -567,11 +580,17 @@ function InputStep({
             recent
           </Mono>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
-            {['saudade', 'ficar', 'já', 'quase'].map((w) => (
-              <TouchableOpacity key={w} onPress={() => onInputChange(w)}>
-                <Chip label={w} variant="default" />
-              </TouchableOpacity>
-            ))}
+            {recentHeadwords.length > 0 ? (
+              recentHeadwords.map((w) => (
+                <TouchableOpacity key={w} onPress={() => onInputChange(w)}>
+                  <Chip label={w} variant="default" />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Body size={11} tone="muted">
+                no recent words yet
+              </Body>
+            )}
           </View>
 
           <Mono tone="muted" style={{ marginBottom: 6 }}>
