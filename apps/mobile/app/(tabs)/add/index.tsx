@@ -384,9 +384,10 @@ function InputStep({
 }) {
   const inputRef = useRef<TextInput>(null);
 
-  // Clipboard auto-detect: on mount when kind === 'sentence', pre-fill from clipboard
+  // Clipboard auto-detect: on mount, read clipboard unconditionally.
+  // The kind guard was removed — on a fresh open inputText is '' so detectKind('')
+  // returns 'word', making the guard always fire before the clipboard was ever read.
   useEffect(() => {
-    if (kind !== 'sentence') return;
     (async () => {
       try {
         const clipText = await Clipboard.getStringAsync();
