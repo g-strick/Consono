@@ -126,6 +126,7 @@ export const cards = pgTable('cards', {
   reps: integer('reps').notNull().default(0),
   lapses: integer('lapses').notNull().default(0),
   last_reviewed_at: timestamp('last_reviewed_at'),
+  suspended_at: timestamp('suspended_at'),
 
   created_at: timestamp('created_at').notNull().defaultNow(),
   updated_at: timestamp('updated_at').notNull().defaultNow(),
