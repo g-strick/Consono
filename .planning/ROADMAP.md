@@ -122,18 +122,18 @@
 
 ## Phase 5: SRS UX + Library
 
-**Goal:** Power user review control. Library is filterable and editable.
+**Goal:** Power user review control. Library is filterable and editable — suspend/unsuspend is the primary SRS control; the library shows the whole deck with filters, swipe actions, and a card detail screen.
 
-**Requirements:** SRS-01, SRS-02, SRS-03, SRS-04, SRS-05, SRS-06, LIB-01, LIB-02, LIB-03
+**Requirements:** SRS-01, SRS-06, LIB-01, LIB-02, LIB-03 (in scope) · SRS-02, SRS-03, SRS-04, SRS-05 (deferred to a future phase per 05-CONTEXT.md)
 
-**Plans:**
+**Plans:** 4 plans
 
-1. Suspend / unsuspend cards (from library and card detail)
-2. Filtered review session picker (by tag, gender, source)
-3. Study ahead + 5-card sprint modes
-4. New cards/day limit setting
-5. Per-card stats screen (review history, stability, difficulty, next due)
-6. Library filters (gender, register, source, SRS state) + inline edit + delete
+- [ ] 05-01-PLAN.md — DB migration: add nullable `suspended_at` timestamp column to cards + generate/apply Drizzle migration [BLOCKING prerequisite] (SRS-01) · wave 1
+- [ ] 05-02-PLAN.md — API + client + pure logic: GET /cards, GET /cards/:id, PATCH /cards/:id (edit sentence/source_tag, conditional audio re-synth), PATCH /cards/:id/suspend, DELETE /cards/:id (FK-safe), /cards/due suspended filter; AllCard type + api methods; cardUtils filterCards + stat formatters + vitest (SRS-01, SRS-06, LIB-01, LIB-02, LIB-03) · wave 2
+- [ ] 05-04-PLAN.md — Card detail screen `app/cards/[id].tsx` (six SRS stats, edit sentence + source tag, suspend toggle, delete with confirmation) + `_layout.tsx` GestureHandlerRootView wrap + cards/[id] Stack.Screen registration (SRS-01, SRS-06, LIB-02, LIB-03) · wave 3
+- [ ] 05-03-PLAN.md — Library redesign `app/(tabs)/cards/index.tsx`: all-cards list, multi-dimensional filter chips (AND logic), swipe-left suspend/delete via new SwipeableRow, pull-to-refresh, row-tap to detail (SRS-01, LIB-01, LIB-03) · wave 4
+
+> **Deferred this phase (05-CONTEXT.md):** SRS-02 filtered review session picker, SRS-03 study ahead, SRS-04 5-card sprint, SRS-05 new-cards/day limit, and the settings screen are dropped from Phase 5 and moved to a future phase. Only original success criteria 1 and 4 are active targets.
 
 **Success Criteria:**
 
