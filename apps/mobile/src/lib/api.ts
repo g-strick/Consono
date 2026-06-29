@@ -84,6 +84,17 @@ export interface DueCard {
   due_at: string;
 }
 
+export interface AllCard extends DueCard {
+  source_tag: string | null;
+  stability: number | null;
+  difficulty: number | null;
+  reps: number;
+  lapses: number;
+  last_reviewed_at: string | null;
+  created_at: string;
+  suspended_at: string | null;
+}
+
 export interface Me {
   id: string;
   name: string;
@@ -242,6 +253,44 @@ export const api = {
       method: 'POST',
       body: JSON.stringify(body),
     });
+  },
+
+  getAllCards() {
+    return request<{ cards: AllCard[] }>('/cards').then(({ cards }) => ({
+      cards: cards.map((c) => ({
+        ...c,
+        audio_url: c.audio_url ? `${BASE}${c.audio_url}` : null,
+        sentence_audio_url: c.sentence_audio_url ? `${BASE}${c.sentence_audio_url}` : null,
+      })),
+    }));
+  },
+
+  getCard(id: number) {
+    return request<{ card: AllCard }>(`/cards/${id}`).then(({ card }) => ({
+      card: {
+        ...card,
+        audio_url: card.audio_url ? `${BASE}${card.audio_url}` : null,
+        sentence_audio_url: card.sentence_audio_url ? `${BASE}${card.sentence_audio_url}` : null,
+      },
+    }));
+  },
+
+  updateCard(id: number, patch: { sentence_pt?: string; source_tag?: string | null }) {
+    return request<{ card: AllCard }>(`/cards/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  },
+
+  suspendCard(id: number, suspend: boolean) {
+    return request<{ ok: boolean }>(`/cards/${id}/suspend`, {
+      method: 'PATCH',
+      body: JSON.stringify({ suspended: suspend }),
+    });
+  },
+
+  deleteCard(id: number) {
+    return request<{ ok: boolean }>(`/cards/${id}`, { method: 'DELETE' });
   },
 
   getDueCards() {
