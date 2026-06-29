@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 04 complete — advancing to Phase 05
-last_updated: '2026-06-25T00:00:00.000Z'
+stopped_at: Phase 5 all 4 plans committed; awaiting human verification
+last_updated: '2026-06-29T03:57:00.000Z'
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 18
-  completed_plans: 18
-  percent: 44
+  total_plans: 22
+  completed_plans: 22
+  percent: 56
 ---
 
 # LingoCards — Project State
@@ -20,15 +20,16 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 05 — SRS UX + Library
+**Current focus:** Phase 05 — srs-ux-library
 
 ## Current Position
 
-Phase: 04 (add-wizard-polish) — ✓ COMPLETE
-Next: Phase 05 — srs-ux-library
+Phase: 05 (srs-ux-library) — PENDING HUMAN VERIFY
+Plan: 4 of 4 (all committed)
+Next: Human verification of 05-03 (library) + 05-04 (card detail), then Phase 06
 
-- **Status:** Phase 04 verified and complete
-- **Progress:** [████░░░░░░] 44%
+- **Status:** Phase 05 all plans committed; checkpoints 05-03 and 05-04 await human device testing
+- **Progress:** [█████░░░░░] 56%
 
 ## Phase 4 Status — ✓ Complete (2026-06-25)
 
@@ -90,12 +91,23 @@ Next: Phase 05 — srs-ux-library
 
 - ⚠️ [Phase 6] Audio currently stored as local file path — blocks cloud sync; must migrate to Supabase Storage
 
+## Phase 5 Status — PENDING HUMAN VERIFY (2026-06-29)
+
+| Plan | Description                                                  | Status               |
+| ---- | ------------------------------------------------------------ | -------------------- |
+| 5.1  | suspended_at nullable timestamp column + Drizzle migration   | ✓ Complete (d2b169a) |
+| 5.2  | Cards CRUD routes, AllCard type, cardUtils filter+formatters | ✓ Complete (4b4c0e8) |
+| 5.3  | Library rewrite: filter chips, SwipeableRow, swipe actions   | ✓ Complete (0b54dff) |
+| 5.4  | Card detail screen + GestureHandlerRootView wiring           | ✓ Complete (bcce357) |
+
+⚠️ Plans 5.3 and 5.4 have `checkpoint:human-verify` tasks — must verify on device before closing phase.
+
 ## Session Continuity
 
-Last session: 2026-06-24T19:00:00.000Z
-Stopped at: Planned Phase 04 — 4 plans written for Add Wizard Polish
-Next: Execute 04-01-PLAN.md (split /generate into /fields + /images; live pipeline LoadingStep; PickImageStep ↻ more).
-Resume file: .planning/phases/04-add-wizard-polish/04-01-PLAN.md
+Last session: 2026-06-29T03:57:00.000Z
+Stopped at: Phase 05 all 4 plans committed; awaiting device verification of 05-03 + 05-04
+Next: Human verify library redesign (05-03) and card detail screen (05-04) on device, then plan Phase 06.
+Resume file: .planning/phases/05-srs-ux-library/05-03-SUMMARY.md
 
 ## Decisions
 
