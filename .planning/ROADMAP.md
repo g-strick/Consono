@@ -150,12 +150,16 @@
 
 **Requirements:** AUTH-01, AUTH-02, AUTH-03
 
-**Plans:**
+**Plans:** 8 plans
 
-1. Supabase Auth (email/password sign up, log in, session persistence)
-2. Row-level security on all DB tables (per-user isolation)
-3. Supabase Storage for audio (migrate existing local paths)
-4. Cross-device sync verification (add on iPhone, review on iPad)
+- [ ] 06-01-PLAN.md — Supabase setup: 6 env vars + public audio bucket (human-action) + JWT-algo probe · wave 1
+- [ ] 06-02-PLAN.md — DB profile trigger (on_auth_user_created) + RLS scope decision (roadmap Plan 2 vs ADR 0007) · wave 1
+- [ ] 06-03-PLAN.md — API JWT auth middleware (ES256/HS256) wired globally, /health public (TDD) · wave 2
+- [ ] 06-04-PLAN.md — API Supabase Storage uploadAudio() service-role client (TDD) · wave 2
+- [ ] 06-05-PLAN.md — Replace V0_USER_ID across 5 routes + reviews IDOR fix + remove constant · wave 3
+- [ ] 06-06-PLAN.md — Audio cutover: migration script + cards.ts write-path (uploadAudio) + read-path (JOIN storage_url) · wave 4
+- [ ] 06-07-PLAN.md — Mobile Supabase client (LargeSecureStore) + api.ts Bearer + remove BASE prepend · wave 5
+- [ ] 06-08-PLAN.md — Mobile auth screens + gated layout + V0 data cutover + remove /audio route + cross-device verify · wave 6
 
 **Success Criteria:**
 
