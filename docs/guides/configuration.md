@@ -14,14 +14,14 @@ cp .env.example .env
 
 ### Variable Reference
 
-| Variable              | Required                     | Default       | Description                                                                                                                                                                                                                                                   |
-| --------------------- | ---------------------------- | ------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `DATABASE_URL`        | **Required**                 | —             | PostgreSQL connection string. Loaded at module startup; the process throws immediately if absent.                                                                                                                                                             |
-| `NARAKEET_API_KEY`    | Required for TTS             | —             | API key for the Narakeet text-to-speech service. Throws at request time when audio synthesis is attempted.                                                                                                                                                    |
-| `OPENROUTER_API_KEY`  | Required for card generation | —             | API key for OpenRouter (routes to Gemini 2.5 Flash Lite). Throws at request time when card generation is called.                                                                                                                                              |
-| `PEXELS_API_KEY`      | Required for card generation | —             | API key for the Pexels image search API. Throws at request time when image search is called.                                                                                                                                                                  |
-| `EXPO_PUBLIC_API_URL` | Optional                     | Auto-resolved | Override for the mobile app's API base URL. When absent in development, the app resolves the LAN IP from Expo's `hostUri` automatically. In production builds this must be set. <!-- VERIFY: production build mechanism for injecting EXPO_PUBLIC_API_URL --> |
-| `PORT`                | Optional                     | `3000`        | Port the Hono API server listens on.                                                                                                                                                                                                                          |
+| Variable              | Required                     | Default       | Description                                                                                                                                                                                                                                                                                                                                   |
+| --------------------- | ---------------------------- | ------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `DATABASE_URL`        | **Required**                 | —             | PostgreSQL connection string. Loaded at module startup; the process throws immediately if absent.                                                                                                                                                                                                                                             |
+| `NARAKEET_API_KEY`    | Required for TTS             | —             | API key for the Narakeet text-to-speech service. Throws at request time when audio synthesis is attempted.                                                                                                                                                                                                                                    |
+| `OPENROUTER_API_KEY`  | Required for card generation | —             | API key for OpenRouter (routes to Gemini 2.5 Flash Lite). Throws at request time when card generation is called.                                                                                                                                                                                                                              |
+| `PEXELS_API_KEY`      | Required for card generation | —             | API key for the Pexels image search API. Throws at request time when image search is called.                                                                                                                                                                                                                                                  |
+| `EXPO_PUBLIC_API_URL` | Optional                     | Auto-resolved | Override for the mobile app's API base URL. Read at module init in `apps/mobile/src/lib/api.ts`. When absent in development, the app resolves the LAN IP from Expo's `hostUri` automatically (falls back to `http://localhost:3000`). For production builds, set this before running `eas build` or via your CI/CD platform's secret manager. |
+| `PORT`                | Optional                     | `3000`        | Port the Hono API server listens on.                                                                                                                                                                                                                                                                                                          |
 
 ### Failure modes
 
@@ -79,17 +79,48 @@ This file is static — no runtime substitution occurs. Build-time Expo variable
 
 ### `apps/mobile/tailwind.config.js`
 
-NativeWind (Tailwind for React Native) configuration. Defines the design token palette used across all screens. Key custom color tokens:
+NativeWind (Tailwind for React Native) configuration. Defines the design token palette used across all screens.
 
-| Token        | Value     | Purpose                  |
-| ------------ | --------- | ------------------------ |
-| `brand`      | `#1F3494` | Primary brand blue       |
-| `brand-fill` | `#2E5BC8` | Interactive fills        |
-| `brand-tint` | `#EFF3FB` | Light brand backgrounds  |
-| `accent`     | `#E8B838` | Accent / highlight color |
-| `again`      | `#C84A40` | "Again" rating — red     |
-| `oled`       | `#000000` | OLED black surface       |
-| `paper`      | `#FFFFFF` | Default light surface    |
+**Color tokens:**
+
+| Token           | Value     | Purpose                         |
+| --------------- | --------- | ------------------------------- |
+| `brand`         | `#1F3494` | Primary brand blue              |
+| `brand-deep`    | `#142468` | Deeper brand blue               |
+| `brand-fill`    | `#2E5BC8` | Interactive fills               |
+| `brand-tint`    | `#EFF3FB` | Light brand backgrounds         |
+| `brand-tint-2`  | `#E8EEF7` | Secondary light brand surface   |
+| `brand-light`   | `#5A8FD4` | Mid-range brand blue            |
+| `brand-soft`    | `#7AA0DD` | Soft brand blue                 |
+| `heat-0`        | `#EFF3FB` | Heatmap level 0 (no activity)   |
+| `heat-1`        | `#A5BFE8` | Heatmap level 1                 |
+| `heat-2`        | `#5A8FD4` | Heatmap level 2                 |
+| `heat-3`        | `#2E5BC8` | Heatmap level 3 (high activity) |
+| `accent`        | `#E8B838` | Accent / highlight color        |
+| `accent-deep`   | `#C99A1F` | Deep accent                     |
+| `again`         | `#C84A40` | "Again" rating — red            |
+| `oled`          | `#000000` | OLED black surface              |
+| `oled-elevated` | `#0A1422` | Elevated OLED surface           |
+| `paper`         | `#FFFFFF` | Default light surface           |
+| `paper-soft`    | `#F7F7F8` | Soft paper surface              |
+| `paper-soft-2`  | `#EFEFF1` | Secondary soft paper surface    |
+| `gray-rule`     | `#D5D5D5` | Divider / rule color            |
+| `gender-fem`    | `#B43A6C` | Feminine gender indicator       |
+| `gender-masc`   | `#1F3494` | Masculine gender indicator      |
+| `gender-common` | `#C99A1F` | Common gender indicator         |
+
+**Font family tokens:**
+
+| Token            | Font                   |
+| ---------------- | ---------------------- |
+| `geist`          | Geist (regular)        |
+| `geist-medium`   | Geist_500Medium        |
+| `geist-semibold` | Geist_600SemiBold      |
+| `geist-bold`     | Geist_700Bold          |
+| `mono`           | GeistMono (regular)    |
+| `mono-medium`    | GeistMono_500Medium    |
+| `serif`          | InstrumentSerif        |
+| `serif-italic`   | InstrumentSerif_Italic |
 
 Content paths scan `./app/**` and `./src/**`. No changes to this file are needed for environment configuration.
 

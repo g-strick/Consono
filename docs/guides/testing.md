@@ -74,6 +74,8 @@ apps/mobile/src/lib/
   useNightSurface.test.ts   ← co-located unit test
   detectKind.ts
   detectKind.test.ts
+  cardUtils.ts
+  cardUtils.test.ts
 ```
 
 The root `vitest.config.ts` picks up both `apps/*/src/**/*.test.ts` and `apps/*/tests/**/*.test.ts`, so a separate `tests/` directory at the app root is also valid for integration-style tests.
@@ -82,12 +84,13 @@ The root `vitest.config.ts` picks up both `apps/*/src/**/*.test.ts` and `apps/*/
 
 All current tests are **unit tests** covering pure functions — no HTTP routes, no database, no React components.
 
-| File                                          | App    | What it tests                                                                                                                        |
-| --------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------ |
-| `apps/api/src/lib/homeSummary.test.ts`        | api    | Date key helpers (`dayKeyLocal`, `localDayStart`), streak counting (`computeStreak`), and today's review stats (`computeTodayStats`) |
-| `apps/api/src/lib/streakStats.test.ts`        | api    | Streak detail aggregation: retention rate, days-active window, review counts, best-run ranking, per-day heatmap bucketing            |
-| `apps/mobile/src/lib/useNightSurface.test.ts` | mobile | OLED night-surface predicate (`isOledSurface`) across dark/light mode and hour boundaries                                            |
-| `apps/mobile/src/lib/detectKind.test.ts`      | mobile | Word vs. sentence detection (`detectKind`) — written as plain Node assertions, not vitest `describe`/`it`                            |
+| File                                          | App    | What it tests                                                                                                                                     |
+| --------------------------------------------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `apps/api/src/lib/homeSummary.test.ts`        | api    | Date key helpers (`dayKeyLocal`, `localDayStart`), streak counting (`computeStreak`), and today's review stats (`computeTodayStats`)              |
+| `apps/api/src/lib/streakStats.test.ts`        | api    | Streak detail aggregation: retention rate, days-active window, review counts, best-run ranking, per-day heatmap bucketing                         |
+| `apps/mobile/src/lib/cardUtils.test.ts`       | mobile | Card filtering (`filterCards`) with AND logic across gender/register/srs_state dimensions; date formatters `formatDueAt` and `formatLastReviewed` |
+| `apps/mobile/src/lib/useNightSurface.test.ts` | mobile | OLED night-surface predicate (`isOledSurface`) across dark/light mode and hour boundaries                                                         |
+| `apps/mobile/src/lib/detectKind.test.ts`      | mobile | Word vs. sentence detection (`detectKind`) — written as plain Node assertions, not vitest `describe`/`it`                                         |
 
 There are no integration tests or end-to-end tests at this time.
 

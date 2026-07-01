@@ -40,9 +40,10 @@ apps/mobile/
 │   ├── (tabs)/                 # Bottom tab navigator
 │   │   ├── _layout.tsx         # Tab bar config (Home, Cards, Add, Settings)
 │   │   ├── index.tsx           # Home screen — due count, streak chip, recent cards
-│   │   ├── cards/index.tsx     # Cards screen — filterable due-card list
+│   │   ├── cards/index.tsx     # Cards screen — filterable card list with swipe actions
 │   │   ├── add/index.tsx       # Add wizard — multi-step card creation flow
 │   │   └── settings/index.tsx  # Settings screen — version info
+│   ├── cards/[id].tsx          # Card detail screen — full card info and stats
 │   ├── review/index.tsx        # Review screen — full-screen FSRS review session
 │   └── streak/index.tsx        # Streak detail — heatmaps, stats, personal bests
 ├── src/
@@ -54,12 +55,15 @@ apps/mobile/
 │   │   ├── StatTile.tsx        # Stat display tile (label + big number)
 │   │   ├── Heatmap.tsx         # YearHeatmap and MonthHeatmap calendar grids
 │   │   ├── RatingButtons.tsx   # Again / Hard / Good / Easy review rating row
-│   │   └── RatingDistribution.tsx  # Bar chart of rating breakdown
+│   │   ├── RatingDistribution.tsx  # Bar chart of rating breakdown
+│   │   └── SwipeableRow.tsx    # Swipeable list row with gesture-driven reveal actions
 │   ├── lib/
 │   │   ├── api.ts              # Typed API client — all REST calls, TypeScript interfaces
 │   │   ├── theme.ts            # Color tokens, font constants, ThemeContext, textForSurface()
+│   │   ├── cardUtils.ts        # Card filtering, SRS state types, due-date formatting helpers
 │   │   ├── detectKind.ts       # Pure function: detects 'word' vs 'sentence' from input text
 │   │   ├── useNightSurface.ts  # Hook: returns 'oled' at night in system dark mode, else 'light'
+│   │   ├── cardUtils.test.ts   # Unit tests for cardUtils
 │   │   ├── detectKind.test.ts  # Unit tests for detectKind
 │   │   └── useNightSurface.test.ts  # Unit tests for isOledSurface
 │   ├── providers/              # External service integrations (called by the API server)
@@ -81,30 +85,32 @@ apps/mobile/
 
 Expo Router file-based routing with a `Stack` at the root:
 
-| Route                   | Presentation    | Description                                    |
-| ----------------------- | --------------- | ---------------------------------------------- |
-| `(tabs)`                | default         | Bottom tab navigator                           |
-| `(tabs)/index`          | tab             | Home — daily pickup, streak, due cards         |
-| `(tabs)/cards/index`    | tab             | Cards list with state filter chips             |
-| `(tabs)/add/index`      | tab             | Add wizard (word: 4 steps, sentence: 3 steps)  |
-| `(tabs)/settings/index` | tab             | App settings and version                       |
-| `review/index`          | fullScreenModal | FSRS review session                            |
-| `streak/index`          | default stack   | Streak detail with heatmaps and personal bests |
+| Route                   | Presentation    | Description                                          |
+| ----------------------- | --------------- | ---------------------------------------------------- |
+| `(tabs)`                | default         | Bottom tab navigator                                 |
+| `(tabs)/index`          | tab             | Home — daily pickup, streak, due cards               |
+| `(tabs)/cards/index`    | tab             | Cards list with state filter chips and swipe actions |
+| `(tabs)/add/index`      | tab             | Add wizard (word: 4 steps, sentence: 3 steps)        |
+| `(tabs)/settings/index` | tab             | App settings and version                             |
+| `cards/[id]`            | default stack   | Card detail — full card info and SRS stats           |
+| `review/index`          | fullScreenModal | FSRS review session                                  |
+| `streak/index`          | default stack   | Streak detail with heatmaps and personal bests       |
 
 ## Key dependencies
 
-| Package                           | Purpose                             |
-| --------------------------------- | ----------------------------------- |
-| `expo ~54.0.33`                   | Expo SDK                            |
-| `expo-router ~6.0.23`             | File-based navigation               |
-| `react-native 0.81.5`             | Core RN (new architecture enabled)  |
-| `nativewind ^4.2.4`               | Tailwind CSS for React Native       |
-| `@tanstack/react-query ^5.100.10` | Server state, caching, mutations    |
-| `ts-fsrs ^5.3.2`                  | FSRS-5 spaced repetition scheduling |
-| `expo-av ~16.0.8`                 | Audio playback for TTS cards        |
-| `expo-haptics ~15.0.8`            | Haptic feedback on review ratings   |
-| `react-native-reanimated ~4.1.1`  | Animations                          |
-| `zod ^4.4.3`                      | Runtime schema validation           |
+| Package                                | Purpose                             |
+| -------------------------------------- | ----------------------------------- |
+| `expo ~54.0.33`                        | Expo SDK                            |
+| `expo-router ~6.0.23`                  | File-based navigation               |
+| `react-native 0.81.5`                  | Core RN (new architecture enabled)  |
+| `nativewind ^4.2.4`                    | Tailwind CSS for React Native       |
+| `@tanstack/react-query ^5.100.10`      | Server state, caching, mutations    |
+| `ts-fsrs ^5.3.2`                       | FSRS-5 spaced repetition scheduling |
+| `expo-av ~16.0.8`                      | Audio playback for TTS cards        |
+| `expo-haptics ~15.0.8`                 | Haptic feedback on review ratings   |
+| `react-native-reanimated ~4.1.1`       | Animations                          |
+| `react-native-gesture-handler ~2.28.0` | Swipeable gesture interactions      |
+| `zod ^4.4.3`                           | Runtime schema validation           |
 
 ## Typography system
 
@@ -140,6 +146,7 @@ npx tsc --noEmit
 
 Unit tests live alongside source files (`*.test.ts`):
 
+- `src/lib/cardUtils.test.ts` — card filtering and due-date formatting
 - `src/lib/detectKind.test.ts` — input-to-kind classification
 - `src/lib/useNightSurface.test.ts` — OLED surface trigger logic (`isOledSurface`)
 

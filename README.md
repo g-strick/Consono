@@ -1,160 +1,158 @@
+<!-- generated-by: gsd-doc-writer -->
+
 # LingoCards
 
 AI-native Brazilian Portuguese learning app — Fluent Forever-style, personal daily driver first.
 
-## Status
+## What it does
 
-**Phase:** V0 — Personal Daily Driver
+Type a Portuguese word or sentence. The LLM (Gemini 2.5 Flash Lite via OpenRouter) fills in pronunciation, gender, register tag, an i+1 example sentence, and an English memory hook. Pexels provides a contextual image. Narakeet TTS generates native-speaker audio (voice: Felipe). Cards are reviewed daily using FSRS — audio-first, no translation crutch.
 
-See `docs/specs/v0.md` for the full V0 scope.
+## Repository layout
+
+```text
+.
+├── apps/
+│   ├── api/        Hono API server (card generation, FSRS reviews, audio, streak)
+│   └── mobile/     Expo app (Expo Router, NativeWind, TanStack Query)
+├── packages/
+│   └── db/         Drizzle ORM schema + Supabase Postgres connection
+├── prompts/        versioned AI prompts (card generation)
+├── data/           source data (frequency lists)
+├── scripts/        one-off utilities (audio prewarm, frequency ingest)
+└── docs/           specs, ADRs, runbooks, glossary
+```
 
 ## Stack
 
-| Layer             | Tech                                        |
-| ----------------- | ------------------------------------------- |
-| Mobile            | Expo SDK 54 · React Native · Expo Router v6 |
-| Styling           | NativeWind v4 (Tailwind)                    |
-| Server state      | TanStack Query v5                           |
-| API server        | Hono on Node.js (port 3000)                 |
-| Database          | Drizzle ORM · PostgreSQL (Supabase)         |
-| Spaced repetition | FSRS via ts-fsrs                            |
-| LLM               | OpenRouter → Gemini 2.5 Flash Lite          |
-| TTS               | Narakeet (voice: Felipe)                    |
-| Image search      | Pexels                                      |
+| Layer             | Technology                                             |
+| ----------------- | ------------------------------------------------------ |
+| Mobile            | Expo 54 · React Native 0.81 · expo-router v6           |
+| Styling           | NativeWind v4 (Tailwind)                               |
+| Server state      | TanStack Query v5                                      |
+| Gestures          | react-native-gesture-handler · react-native-reanimated |
+| API server        | Hono 4 on Node.js (port 3000)                          |
+| Database          | Drizzle ORM · PostgreSQL (Supabase)                    |
+| Spaced repetition | FSRS v5 via ts-fsrs                                    |
+| LLM               | OpenRouter → Gemini 2.5 Flash Lite                     |
+| TTS               | Narakeet (voice: Felipe)                               |
+| Image search      | Pexels                                                 |
 
 ## Prerequisites
 
 - **Node.js 22.x** — `nvm use` or `fnm install && fnm use`
-- **pnpm 11** — `npm install -g pnpm@11` (repo pins via `packageManager`)
-- **Expo Go** — install on your iOS or Android device from the App Store / Play Store
-- **`.env` file** — copy `.env.example` and fill in secrets (see below)
+- **pnpm 11** via Corepack — `corepack enable`
+- **Expo Go** on your iOS or Android device
+- **Supabase project** with a Postgres database
 
-## Environment Variables
+## Environment variables
 
-Create `.env` in the repo root:
-
-```bash
-# Database
-DATABASE_URL=postgresql://...
-
-# LLM
-OPENROUTER_API_KEY=sk-or-...
-
-# TTS
-NARAKEET_API_KEY=...
-
-# Image search
-PEXELS_API_KEY=...
-```
-
-`EXPO_PUBLIC_API_URL` is set per-session (see Quick Start below) — no need in `.env`.
-
-## Quick Start
-
-Install once:
+Copy `.env.example` to `.env` in the repo root and fill in your secrets:
 
 ```bash
-pnpm install
-pnpm approve-builds   # approve esbuild build scripts (one-time, interactive)
+NARAKEET_API_KEY=your_key_here
+NARAKEET_VOICE_ID=felipe
+PEXELS_API_KEY=your_key_here
+OPENROUTER_API_KEY=your_key_here
+DATABASE_URL=postgresql://postgres.[project-ref]:[password]@db.[project-ref].supabase.co:5432/postgres
 ```
 
-Then open **two terminals**:
+`EXPO_PUBLIC_API_URL` is set per-session when starting the mobile dev server (see Quick Start below).
 
-**Terminal 1 — API server:**
+## Quick start
+
+**Install once:**
+
+```bash
+corepack enable
+make install
+make db-migrate
+make api-seed    # seeds the hardcoded V0 user row
+```
+
+**Then open two terminals:**
+
+Terminal 1 — API server:
 
 ```bash
 make api
-# or: cd apps/api && pnpm dev
 # Runs on http://localhost:3000
 # Verify: http://localhost:3000/health → {"ok":true}
 ```
 
-**Terminal 2 — Expo / Metro:**
+Terminal 2 — Expo / Metro:
 
 ```bash
-make mobile
-# or: cd apps/mobile && EXPO_PUBLIC_API_URL=http://<your-local-ip>:3000 pnpm start
+# Use your machine's LAN IP so your phone can reach the API over Wi-Fi
+EXPO_PUBLIC_API_URL=http://<your-local-ip>:3000 make mobile
 ```
 
-> **Tip:** Use your machine's LAN IP (e.g. `192.168.1.x`), not `localhost`, so your phone can reach the API over Wi-Fi.
+On your phone: open **Expo Go**, tap **Scan QR Code**, scan the QR printed by Metro.
 
-**On your phone:**
-
-1. Open **Expo Go**
-2. Tap **Scan QR Code**
-3. Scan the QR printed by Metro in Terminal 2
-
-## Other Make Targets
+## Make targets
 
 ```bash
 make install        # install all dependencies
 make api            # start API server (port 3000)
 make mobile         # start Expo / Metro bundler
-make test           # run unit tests
+make test           # run unit tests (Vitest)
 make typecheck      # TypeScript type check (all packages)
 make lint           # ESLint + markdownlint + cspell
 make format         # Prettier
 make check          # typecheck + lint + test (what CI runs)
 make db-generate    # generate SQL migration from schema changes
-make db-migrate     # apply pending migrations
-make db-studio      # open Drizzle Studio
+make db-migrate     # apply pending migrations to Supabase DB
+make db-studio      # open Drizzle Studio DB browser
 make api-seed       # seed the V0 hardcoded user row
+make prewarm-audio  # pre-generate TTS for top-N frequency words
 ```
 
-## Repository Layout
+## API routes
 
-```text
-.
-├── apps/
-│   ├── api/              # Hono API server (card generation, FSRS reviews, audio)
-│   └── mobile/           # Expo app (Expo Router, NativeWind, TanStack Query)
-├── packages/
-│   └── db/               # Drizzle ORM schema + Supabase Postgres connection
-├── prompts/              # versioned AI prompts (card generation)
-├── data/                 # source data (frequency lists, word lists)
-├── scripts/              # one-off utilities
-├── docs/
-│   ├── specs/            # active specs (v0.md is the working spec)
-│   ├── decisions/        # ADRs (load-bearing decisions only)
-│   ├── ideas/            # future ideas, brainstorms
-│   ├── runbooks/         # how-to guides
-│   └── glossary.md       # domain terms
-├── AGENTS.md             # AI tool entry point — read first
-└── CHANGELOG.md          # auto-generated by release-please
-```
+| Method   | Path               | Description                                         |
+| -------- | ------------------ | --------------------------------------------------- |
+| `GET`    | `/health`          | Health check                                        |
+| `POST`   | `/generate/fields` | LLM card field extraction (creates pending card)    |
+| `POST`   | `/generate/images` | Pexels image search for a pending card              |
+| `GET`    | `/cards`           | List all user cards (supports state/kind filters)   |
+| `GET`    | `/cards/:id`       | Card detail                                         |
+| `PATCH`  | `/cards/:id`       | Update card fields                                  |
+| `DELETE` | `/cards/:id`       | Delete a card                                       |
+| `POST`   | `/reviews`         | Submit an FSRS review rating (Again/Hard/Good/Easy) |
+| `GET`    | `/home/summary`    | Home screen aggregation (streak, due count, stats)  |
+| `GET`    | `/streak/stats`    | Retention %, heat map data, best-run streaks        |
+| `GET`    | `/users/me`        | Current user profile                                |
+| `GET`    | `/audio/:hash`     | Serve cached TTS audio clip                         |
 
-## API Routes
+## Mobile screens
 
-| Method | Path           | Description                              |
-| ------ | -------------- | ---------------------------------------- |
-| `GET`  | `/health`      | Health check                             |
-| `POST` | `/generate`    | Generate card draft (LLM + TTS + images) |
-| `POST` | `/cards`       | Approve a pending card draft             |
-| `GET`  | `/cards/due`   | Fetch cards due for review               |
-| `POST` | `/reviews`     | Submit an FSRS review rating             |
-| `GET`  | `/audio/:hash` | Serve cached TTS audio                   |
+- **Home** — due-card count, current streak chip, next-due time, recent words
+- **Review** — audio-first card flip with FSRS rating buttons
+- **Add wizard** — multi-step: input → loading (LLM fields) → image pick → sentence edit → approve
+- **Library** — filter chips (All / New / Learning / Review / Suspended), swipe-to-suspend/delete actions, `SwipeableRow` component
+- **Card detail** — full card view at `/cards/[id]`
+- **Streak** — retention percentage, review heat map, best-run stats
+- **Settings** — user preferences
 
-## Key Documents
+## Database schema
 
-- **AGENTS.md** — entry point for AI coding tools (Claude Code, Cursor, etc.)
-- **docs/specs/v0.md** — V0 spec, the working blueprint
-- **docs/decisions/** — every load-bearing architectural decision
-- **docs/glossary.md** — lemma, FSRS, i+1, CEFR, etc.
+Core tables: `users`, `cards`, `lemmas`, `reviews`, `audio_clips`, `pending_cards`.
+
+Cards store full FSRS state (`due_at`, `stability`, `difficulty`, `state`, `reps`, `lapses`, `suspended_at`). Audio is content-addressed by SHA-256 of `text + provider + voice_id` — same text is never stored twice. `pending_cards` tracks generation pipeline state so connection drops do not lose in-progress drafts.
+
+## Development status
+
+- Phases 1–5 complete (add wizard, home/streak screens, library redesign, card detail, CRUD routes)
+- Phase 6 (Supabase Auth + cloud sync) next
+- Current build uses a hardcoded single-user model — auth intentionally deferred
+
+## Key documents
+
+- **AGENTS.md** — entry point for AI coding tools
+- **docs/decisions/** — load-bearing architectural decisions (ADRs)
+- **docs/glossary.md** — lemma, FSRS, i+1, CEFR, register tag, etc.
+- **.planning/STATE.md** — current project phase and plan status
 
 ## License
 
-TBD — must remain permissive when chosen.
-
-## Usage
-
-**Add a new word or sentence**
-
-From the home screen, tap **+ Add a word or sentence** (or navigate to the Add tab). Enter a Portuguese word or sentence — the API calls the LLM to propose images, audio, and i+1 example sentences. Review the draft and approve it to save the card to your deck.
-
-**Daily review**
-
-The home screen shows how many cards are due. Tap **Start review** to enter the review session. Each card presents the Portuguese side; reveal the answer, then rate your recall (Again / Hard / Good / Easy). FSRS schedules the next review automatically.
-
-**Check your streak**
-
-The streak chip in the top-right of the home screen shows your current review streak. Tap it to see a detailed streak breakdown.
+Private — all rights reserved.

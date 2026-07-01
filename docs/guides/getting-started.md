@@ -64,7 +64,7 @@ Open `.env` and set the following values:
 
 `DATABASE_URL` is the only variable that causes an immediate startup failure if missing. The other three API keys only throw when their respective routes are called, so the server starts without them — but card generation and audio will fail at runtime.
 
-Leave `NARAKEET_VOICE_ID` out of your `.env`; the voice is hardcoded to `felipe` in the source and the variable has no effect.
+`NARAKEET_VOICE_ID` is included in the copied `.env.example` (set to `felipe`) and is safe to leave as-is or remove entirely — the variable has no runtime effect because the voice is hardcoded to `felipe` in the source.
 
 **6. Seed the database (first time only).**
 
