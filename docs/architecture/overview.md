@@ -153,7 +153,9 @@ src/
 ├── index.ts          # Hono app, route mounts, server start
 ├── routes/           # One file per resource group (thin handlers: validate → call → persist)
 │   ├── generate.ts   # POST /generate — LLM + image search, pending_card lifecycle
-│   ├── cards.ts      # POST /cards (approve), GET /cards/due
+│   ├── cards.ts      # POST /cards (approve), GET /cards, GET /cards/due,
+│   │                 #   GET /cards/:id, PATCH /cards/:id, PATCH /cards/:id/suspend,
+│   │                 #   DELETE /cards/:id
 │   ├── reviews.ts    # POST /reviews — FSRS scheduling
 │   ├── audio.ts      # GET /audio/:hash — MP3 serving from local cache
 │   ├── home.ts       # GET /home/summary — aggregated home screen data
@@ -178,8 +180,11 @@ app/                  # Expo Router file-system routing
 │   ├── _layout.tsx   # Tab bar config (Home, Cards, Add, Settings)
 │   ├── index.tsx     # Home screen — due card count, streak chip, recent cards
 │   ├── add/index.tsx # Add screen — input → generate → image pick → sentence pick → save
-│   ├── cards/index.tsx# Cards browser with state filter
+│   ├── cards/index.tsx# Library browser — filter chips (gender / register / SRS state /
+│   │                  #   source tag) and swipeable rows (suspend / delete actions)
 │   └── settings/index.tsx # Settings (placeholder at V0)
+├── cards/[id].tsx    # Card detail — image, SRS stats grid, inline sentence edit with
+│                     #   audio re-synthesis, source tagging, suspend/unsuspend, delete
 ├── review/index.tsx  # Full-screen review session — audio-first presentation, FSRS ratings
 └── streak/index.tsx  # Streak detail — heatmap, retention stats, personal bests
 
@@ -187,12 +192,14 @@ src/
 ├── lib/
 │   ├── api.ts        # Typed API client, all fetch calls, shared TypeScript interfaces
 │   ├── theme.ts      # Color tokens (V6 palette), font constants, Surface types, ThemeContext
+│   ├── cardUtils.ts  # filterCards() filter logic, formatDueAt(), formatLastReviewed()
 │   ├── detectKind.ts # Heuristic: word vs sentence discrimination from input text
 │   └── useNightSurface.ts # Returns 'oled' when dark mode + night hours, else 'light'
 ├── components/       # Shared design-system primitives
 │   ├── Type.tsx      # Text components: Display, Heading, Body, Mono, Num, Action
 │   ├── Surface.tsx   # Card, surface-elevation containers
 │   ├── Chip.tsx      # Label pill component
+│   ├── SwipeableRow.tsx   # Swipeable list row with configurable left/right action slots
 │   ├── StreakChip.tsx # Streak indicator (inactive / at-risk / continued states)
 │   ├── Heatmap.tsx   # YearHeatmap (371-cell grid), MonthHeatmap (calendar grid)
 │   ├── StatTile.tsx  # 2×2 stat grid tile
@@ -218,6 +225,7 @@ lemmas              — One row per canonical dictionary form per user; UNIQUE(u
 cards               — The reviewable unit; card_kind discriminator ('word' | 'sentence')
                       Word fields (headword, gendered_form, gender, etc.) nullable on sentence cards
                       FSRS state columns: due_at, stability, difficulty, state, reps, lapses
+                      suspended_at: null = active, timestamp = suspended (excluded from /due)
 audio_clips         — Content-addressed audio store; PK = SHA-256(text + provider + voice_id)
                       Global dedup: same text+voice never stored twice, regardless of user
                       storage_url currently points to a local file path (Supabase Storage: planned)
@@ -243,17 +251,22 @@ all mutation and scheduling logic happens here; clients are treated as caches.
 
 ### Endpoints
 
-| Method | Path            | Description                                                               |
-| ------ | --------------- | ------------------------------------------------------------------------- |
-| `POST` | `/generate`     | Start card generation: LLM extraction + image search, returns draft       |
-| `POST` | `/cards`        | Approve a pending card: TTS synthesis, lemma upsert, card insert          |
-| `GET`  | `/cards/due`    | Cards with `due_at <= now` for the current user                           |
-| `POST` | `/reviews`      | Submit a rating: FSRS scheduling, review log append                       |
-| `GET`  | `/audio/:hash`  | Serve a cached MP3 by SHA-256 content hash                                |
-| `GET`  | `/home/summary` | Aggregated home screen data (totals, streak, next due, recent cards)      |
-| `GET`  | `/streak/stats` | Full streak analytics (hero, month/year/lifetime periods, personal bests) |
-| `GET`  | `/users/me`     | Current user profile                                                      |
-| `GET`  | `/health`       | Liveness check — returns `{ ok: true }`                                   |
+| Method   | Path                 | Description                                                                   |
+| -------- | -------------------- | ----------------------------------------------------------------------------- |
+| `POST`   | `/generate`          | Start card generation: LLM extraction + image search, returns draft           |
+| `POST`   | `/cards`             | Approve a pending card: TTS synthesis, lemma upsert, card insert              |
+| `GET`    | `/cards`             | All cards for the user, newest-first (includes suspended)                     |
+| `GET`    | `/cards/due`         | Cards with `due_at <= now` for the current user (excludes suspended)          |
+| `GET`    | `/cards/:id`         | Single card by ID for the detail screen                                       |
+| `PATCH`  | `/cards/:id`         | Edit `sentence_pt` / `source_tag`; re-synthesizes audio on sentence change    |
+| `PATCH`  | `/cards/:id/suspend` | Toggle card suspension (`suspended_at`: null = active, timestamp = suspended) |
+| `DELETE` | `/cards/:id`         | Delete card and its review history                                            |
+| `POST`   | `/reviews`           | Submit a rating: FSRS scheduling, review log append                           |
+| `GET`    | `/audio/:hash`       | Serve a cached MP3 by SHA-256 content hash                                    |
+| `GET`    | `/home/summary`      | Aggregated home screen data (totals, streak, next due, recent cards)          |
+| `GET`    | `/streak/stats`      | Full streak analytics (hero, month/year/lifetime periods, personal bests)     |
+| `GET`    | `/users/me`          | Current user profile                                                          |
+| `GET`    | `/health`            | Liveness check — returns `{ ok: true }`                                       |
 
 All request bodies are validated with Zod before handlers run. Validation failures return HTTP 400
 with the Zod error structure. Unhandled errors propagate to Hono's default error handler.

@@ -1,6 +1,7 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import {
   ActivityIndicator,
+  Alert,
   Image,
   Pressable,
   ScrollView,
@@ -8,11 +9,19 @@ import {
   TouchableOpacity,
   View,
 } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
 import { SafeAreaView, useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
 import { router } from 'expo-router';
-import { useMutation, useQueryClient } from '@tanstack/react-query';
-import { api, CardKind, GenerateDraft, ImageResult } from '@/src/lib/api';
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import {
+  api,
+  CardKind,
+  GenerateDraft,
+  GenerateFieldsResult,
+  ImageResult,
+  WordFields,
+} from '@/src/lib/api';
 import { detectKind } from '@/src/lib/detectKind';
 import { colors, fonts } from '@/src/lib/theme';
 import { Display, Heading, Body, Mono, Action } from '@/src/components/Type';
@@ -35,9 +44,23 @@ export default function AddScreen() {
   const [step, setStep] = useState<Step>('input');
   const [inputText, setInputText] = useState('');
   const [draft, setDraft] = useState<GenerateDraft | null>(null);
+  // pipelineState: staged pipeline — fields resolve first, then images
+  const [pipelineFields, setPipelineFields] = useState<GenerateFieldsResult | null>(null);
+  const [pipelineImages, setPipelineImages] = useState<ImageResult[] | null>(null);
   const [selectedImage, setSelectedImage] = useState<ImageResult | null>(null);
   const [selectedSentence, setSelectedSentence] = useState('');
   const [savedCardId, setSavedCardId] = useState<number | null>(null);
+  const [selectedSource, setSelectedSource] = useState<string | null>(null);
+
+  const { data: homeSummary } = useQuery({
+    queryKey: ['home', 'summary'],
+    queryFn: () => api.getHomeSummary(),
+    staleTime: 60_000,
+  });
+  const recentHeadwords = (homeSummary?.recentCards ?? [])
+    .filter((c) => c.headword != null)
+    .map((c) => c.headword as string)
+    .slice(0, 4);
 
   // Derived kind — recomputed on every render (driven by inputText + override)
   const kind: CardKind = kindOverride ?? detectKind(inputText);
@@ -59,19 +82,64 @@ export default function AddScreen() {
     });
   }
 
-  const generateMutation = useMutation({
-    mutationFn: ({ text, kind: k }: { text: string; kind: CardKind }) => api.generate(text, k),
-    onSuccess: (data, { kind: k }) => {
-      setDraft(data);
-      // In sentence mode, PickSentenceStep is skipped — pre-populate so selectedSentence
-      // is always the final text rather than relying on a fallback at save time.
-      if (k === 'sentence') {
-        setSelectedSentence(data.draft.fields.sentence_candidates[0]);
+  const imagesMutation = useMutation({
+    mutationFn: ({
+      pending_card_id,
+      image_search_query,
+    }: {
+      pending_card_id: number;
+      image_search_query: string;
+    }) => api.generateImages(pending_card_id, image_search_query),
+    onSuccess: (data, { pending_card_id }) => {
+      setPipelineImages(data.images);
+      // Build full GenerateDraft from staged pipeline results
+      if (!pipelineFields) return;
+      const fullDraft: GenerateDraft = {
+        pending_card_id,
+        draft: { fields: pipelineFields.fields, images: data.images },
+      };
+      setDraft(fullDraft);
+      // In sentence mode, PickSentenceStep is skipped — pre-populate selectedSentence
+      if (kind === 'sentence') {
+        setSelectedSentence(pipelineFields.fields.sentence_candidates[0]);
       }
       setStep('pick-image');
     },
     onError: () => {
       setStep('input');
+    },
+  });
+
+  const fieldsMutation = useMutation({
+    mutationFn: ({ text, kind: k }: { text: string; kind: CardKind }) =>
+      api.generateFields(text, k),
+    onSuccess: (data) => {
+      setPipelineFields(data);
+      imagesMutation.mutate({
+        pending_card_id: data.pending_card_id,
+        image_search_query: data.fields.image_search_query,
+      });
+    },
+    onError: () => {
+      setStep('input');
+    },
+  });
+
+  const refreshMutation = useMutation({
+    mutationFn: () => {
+      if (!pipelineFields) throw new Error('No pipeline fields');
+      return api.generateImages(
+        pipelineFields.pending_card_id,
+        pipelineFields.fields.image_search_query,
+      );
+    },
+    onSuccess: (data) => {
+      if (!pipelineFields || !draft) return;
+      const updatedDraft: GenerateDraft = {
+        pending_card_id: pipelineFields.pending_card_id,
+        draft: { fields: pipelineFields.fields, images: data.images },
+      };
+      setDraft(updatedDraft);
     },
   });
 
@@ -83,6 +151,7 @@ export default function AddScreen() {
         selected_image_url: selectedImage.url,
         selected_image_attribution: selectedImage.attribution,
         selected_sentence: sentence,
+        edits: { source_tag: selectedSource ?? undefined },
       });
     },
     onSuccess: (data) => {
@@ -95,18 +164,23 @@ export default function AddScreen() {
   function handleGenerate() {
     if (!inputText.trim()) return;
     setStep('loading');
-    generateMutation.mutate({ text: inputText.trim(), kind });
+    fieldsMutation.mutate({ text: inputText.trim(), kind });
   }
 
   function resetFlow() {
     setStep('input');
     setInputText('');
     setDraft(null);
+    setPipelineFields(null);
+    setPipelineImages(null);
     setSelectedImage(null);
     setSelectedSentence('');
     setSavedCardId(null);
     setKindOverride(null);
-    generateMutation.reset();
+    setSelectedSource(null);
+    fieldsMutation.reset();
+    imagesMutation.reset();
+    refreshMutation.reset();
     approveMutation.reset();
   }
 
@@ -211,12 +285,23 @@ export default function AddScreen() {
           onInputChange={handleInputChange}
           onKindOverride={handleKindOverride}
           onGenerate={handleGenerate}
-          error={generateMutation.error?.message}
+          error={fieldsMutation.error?.message ?? imagesMutation.error?.message}
           tabBarHeight={tabBarHeight}
+          selectedSource={selectedSource}
+          onSourceSelect={setSelectedSource}
+          recentHeadwords={recentHeadwords}
         />
       )}
 
-      {step === 'loading' && <LoadingStep kind={kind} inputText={inputText} />}
+      {step === 'loading' && (
+        <LoadingStep
+          kind={kind}
+          inputText={inputText}
+          fieldsComplete={pipelineFields !== null}
+          imageCount={pipelineImages?.length ?? 0}
+          fields={pipelineFields?.fields ?? null}
+        />
+      )}
 
       {step === 'pick-image' && draft && (
         <PickImageStep
@@ -229,6 +314,8 @@ export default function AddScreen() {
             if (!selectedImage) return;
             setStep(kind === 'sentence' ? 'review' : 'pick-sentence');
           }}
+          onRefresh={() => refreshMutation.mutate()}
+          refreshLoading={refreshMutation.isPending}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -252,6 +339,7 @@ export default function AddScreen() {
           isSaving={approveMutation.isPending}
           error={approveMutation.error?.message}
           onSave={(sentence) => approveMutation.mutate(sentence)}
+          onSentenceEdit={(newSentence) => setSelectedSentence(newSentence)}
           tabBarHeight={tabBarHeight}
         />
       )}
@@ -279,6 +367,9 @@ function InputStep({
   onGenerate,
   error,
   tabBarHeight,
+  selectedSource,
+  onSourceSelect,
+  recentHeadwords,
 }: {
   kind: CardKind;
   inputText: string;
@@ -287,8 +378,27 @@ function InputStep({
   onGenerate: () => void;
   error?: string;
   tabBarHeight: number;
+  selectedSource: string | null;
+  onSourceSelect: (src: string | null) => void;
+  recentHeadwords: string[];
 }) {
   const inputRef = useRef<TextInput>(null);
+
+  // Clipboard auto-detect: on mount, read clipboard unconditionally.
+  // The kind guard was removed — on a fresh open inputText is '' so detectKind('')
+  // returns 'word', making the guard always fire before the clipboard was ever read.
+  useEffect(() => {
+    (async () => {
+      try {
+        const clipText = await Clipboard.getStringAsync();
+        if (clipText && clipText.trim().split(/\s+/).filter(Boolean).length > 3) {
+          onInputChange(clipText.trim());
+        }
+      } catch {
+        // Clipboard errors are swallowed silently — not shown to user
+      }
+    })();
+  }, []);
   const wordCount =
     inputText.trim() === '' ? 0 : inputText.trim().split(/\s+/).filter(Boolean).length;
   const hasInput = inputText.trim().length > 0;
@@ -419,9 +529,44 @@ function InputStep({
             </Body>
           </Mono>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5 }}>
-            {['whatsapp', 'instagram', 'netflix', '+ tag'].map((src) => (
-              <Chip key={src} label={src} variant="default" />
-            ))}
+            {(['whatsapp', 'instagram', 'netflix'] as const).map((src) => {
+              const isSelected = selectedSource === src;
+              return (
+                <TouchableOpacity key={src} onPress={() => onSourceSelect(isSelected ? null : src)}>
+                  <Chip label={src} variant={isSelected ? 'brand' : 'default'} />
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity
+              onPress={() => {
+                Alert.prompt(
+                  'Custom source',
+                  'e.g. livro, aula…',
+                  (text) => {
+                    if (text && text.trim()) {
+                      onSourceSelect(text.trim());
+                    }
+                  },
+                  'plain-text',
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? selectedSource
+                    : '',
+                );
+              }}
+            >
+              <Chip
+                label={
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? selectedSource
+                    : '+ tag'
+                }
+                variant={
+                  selectedSource && !['whatsapp', 'instagram', 'netflix'].includes(selectedSource)
+                    ? 'brand'
+                    : 'default'
+                }
+              />
+            </TouchableOpacity>
           </View>
           <Body size={11} tone="muted" style={{ marginTop: 6 }}>
             use sentences you read or hear · don't invent
@@ -436,11 +581,17 @@ function InputStep({
             recent
           </Mono>
           <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 5, marginBottom: 14 }}>
-            {['saudade', 'ficar', 'já', 'quase'].map((w) => (
-              <TouchableOpacity key={w} onPress={() => onInputChange(w)}>
-                <Chip label={w} variant="default" />
-              </TouchableOpacity>
-            ))}
+            {recentHeadwords.length > 0 ? (
+              recentHeadwords.map((w) => (
+                <TouchableOpacity key={w} onPress={() => onInputChange(w)}>
+                  <Chip label={w} variant="default" />
+                </TouchableOpacity>
+              ))
+            ) : (
+              <Body size={11} tone="muted">
+                no recent words yet
+              </Body>
+            )}
           </View>
 
           <Mono tone="muted" style={{ marginBottom: 6 }}>
@@ -510,25 +661,83 @@ type PipelineRow = {
   tone?: 'brand';
   bold?: boolean;
   chip?: boolean;
+  chipColor?: string;
   mono?: boolean;
   faded?: boolean;
 };
 
-function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string }) {
-  const wordPipelineRows: PipelineRow[] = [
-    { label: '✓ lemma', value: inputText.trim(), color: colors.good, bold: true },
-    { label: '✓ gender', value: 'detecting…', color: colors.good, chip: true },
-    { label: '✓ stress', value: '…', color: colors.good, mono: true },
-    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
-    { label: '○ i+1 sentences', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
-  ];
+function LoadingStep({
+  kind,
+  inputText,
+  fieldsComplete,
+  imageCount,
+  fields,
+}: {
+  kind: CardKind;
+  inputText: string;
+  fieldsComplete: boolean;
+  imageCount: number;
+  fields: WordFields | null;
+}) {
+  const genderColor =
+    fields?.gender === 'feminine'
+      ? colors.genderFem
+      : fields?.gender === 'masculine'
+        ? colors.brand
+        : colors.accentDeep;
 
-  const sentencePipelineRows: PipelineRow[] = [
-    { label: '✓ parsed', value: 'known words', color: colors.good, bold: true },
-    { label: '✓ image query', value: 'querying…', color: colors.good, bold: true },
-    { label: '○ images', value: '0 / 4', tone: 'brand', mono: true },
-    { label: '○ gloss', value: 'queued', color: 'rgba(0,0,0,0.35)', faded: true },
-  ];
+  const wordPipelineRows: PipelineRow[] =
+    fieldsComplete && fields
+      ? [
+          { label: '✓ lemma', value: fields.lemma, color: colors.good, bold: true },
+          {
+            label: '✓ gender',
+            value: fields.gender,
+            color: genderColor,
+            chip: true,
+            chipColor: genderColor,
+          },
+          { label: '✓ stress', value: fields.stress_marker, color: colors.good, mono: true },
+          { label: '✓ sentences', value: '4 ready', color: colors.good, bold: true },
+          {
+            label: '○ images',
+            value: `${imageCount} / 4`,
+            tone: imageCount < 4 ? 'brand' : undefined,
+            color: imageCount >= 4 ? colors.good : undefined,
+            mono: true,
+          },
+        ]
+      : [
+          { label: '… lemma', value: inputText.trim(), faded: true, bold: true },
+          { label: '… gender', value: 'detecting…', faded: true },
+          { label: '… stress', value: '…', faded: true, mono: true },
+          { label: '… sentences', value: 'queued', faded: true },
+          { label: '○ images', value: `${imageCount} / 4`, tone: 'brand', mono: true },
+        ];
+
+  const sentencePipelineRows: PipelineRow[] =
+    fieldsComplete && fields
+      ? [
+          { label: '✓ parsed', value: 'known words', color: colors.good, bold: true },
+          {
+            label: '✓ image query',
+            value: fields.image_search_query,
+            color: colors.good,
+            bold: true,
+          },
+          {
+            label: '○ images',
+            value: `${imageCount} / 4`,
+            tone: imageCount < 4 ? 'brand' : undefined,
+            color: imageCount >= 4 ? colors.good : undefined,
+            mono: true,
+          },
+        ]
+      : [
+          { label: '… parsed', value: 'processing…', faded: true, bold: true },
+          { label: '… image query', value: 'queued', faded: true, bold: true },
+          { label: '○ images', value: `${imageCount} / 4`, tone: 'brand', mono: true },
+        ];
 
   const rows: PipelineRow[] = kind === 'word' ? wordPipelineRows : sentencePipelineRows;
 
@@ -569,7 +778,7 @@ function LoadingStep({ kind, inputText }: { kind: CardKind; inputText: string })
               {row.label}
             </Body>
             {row.chip ? (
-              <Chip label="feminine" color={colors.genderFem} />
+              <Chip label={row.value} color={row.chipColor ?? colors.genderFem} />
             ) : row.mono ? (
               <Mono size={10} tone={row.tone} style={row.color ? { color: row.color } : undefined}>
                 {row.value}
@@ -599,6 +808,8 @@ function PickImageStep({
   kind,
   onSelect,
   onNext,
+  onRefresh,
+  refreshLoading,
   tabBarHeight,
 }: {
   images: ImageResult[];
@@ -607,6 +818,8 @@ function PickImageStep({
   kind: CardKind;
   onSelect: (img: ImageResult) => void;
   onNext: () => void;
+  onRefresh: () => void;
+  refreshLoading: boolean;
   tabBarHeight: number;
 }) {
   const genderColor =
@@ -694,9 +907,28 @@ function PickImageStep({
           tap to pick · long-press to preview
         </Body>
 
-        {/* Display-only action chips */}
+        {/* Action chips — ↻ more fires real re-fetch */}
         <View style={{ flexDirection: 'row', gap: 5, marginBottom: 14 }}>
-          <Chip label="↻ more" />
+          <TouchableOpacity onPress={onRefresh} disabled={refreshLoading}>
+            {refreshLoading ? (
+              <View
+                style={{
+                  paddingHorizontal: 10,
+                  paddingVertical: 5,
+                  borderRadius: 6,
+                  borderWidth: 0.5,
+                  borderColor: 'rgba(0,0,0,0.15)',
+                  backgroundColor: colors.paperSoft,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <ActivityIndicator size="small" color={colors.brand} />
+              </View>
+            ) : (
+              <Chip label="↻ more" />
+            )}
+          </TouchableOpacity>
           <Chip label="↑ upload" />
           <Chip label="⌕ refine" />
         </View>
@@ -852,6 +1084,7 @@ function ReviewStep({
   isSaving,
   error,
   onSave,
+  onSentenceEdit,
   tabBarHeight,
 }: {
   draft: GenerateDraft;
@@ -861,8 +1094,13 @@ function ReviewStep({
   isSaving: boolean;
   error?: string;
   onSave: (sentence: string) => void;
+  onSentenceEdit: (newSentence: string) => void;
   tabBarHeight: number;
 }) {
+  const [editingSentence, setEditingSentence] = useState(false);
+  const [editDraft, setEditDraft] = useState('');
+  const [previousSentence, setPreviousSentence] = useState('');
+
   const f = draft.draft.fields;
   const genderForCard: 'fem' | 'masc' | 'common' =
     f.gender === 'feminine' ? 'fem' : f.gender === 'masculine' ? 'masc' : 'common';
@@ -913,19 +1151,41 @@ function ReviewStep({
               resizeMode="cover"
             />
 
-            {/* Sentence */}
-            <Body
-              size={13}
-              style={{
-                marginTop: 8,
-                paddingBottom: 8,
-                borderBottomWidth: 1,
-                borderBottomColor: colors.grayRule,
-                borderStyle: 'dashed',
-              }}
-            >
-              {selectedSentence}
-            </Body>
+            {/* Sentence — static or inline edit */}
+            {editingSentence ? (
+              <TextInput
+                value={editDraft}
+                onChangeText={setEditDraft}
+                autoFocus
+                autoCorrect={false}
+                multiline
+                style={{
+                  fontFamily: fonts.display,
+                  fontSize: 13,
+                  lineHeight: 20,
+                  flex: 1,
+                  marginTop: 8,
+                  paddingBottom: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.brand,
+                  borderStyle: 'dashed',
+                  color: '#000000',
+                }}
+              />
+            ) : (
+              <Body
+                size={13}
+                style={{
+                  marginTop: 8,
+                  paddingBottom: 8,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.grayRule,
+                  borderStyle: 'dashed',
+                }}
+              >
+                {selectedSentence}
+              </Body>
+            )}
 
             {/* Sentence audio placeholder */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 }}>
@@ -963,10 +1223,32 @@ function ReviewStep({
               resizeMode="cover"
             />
 
-            {/* Serif sentence headline */}
-            <Display size={18} style={{ marginTop: 10 }}>
-              {selectedSentence}
-            </Display>
+            {/* Serif sentence headline — static or inline edit */}
+            {editingSentence ? (
+              <TextInput
+                value={editDraft}
+                onChangeText={setEditDraft}
+                autoFocus
+                autoCorrect={false}
+                multiline
+                style={{
+                  fontFamily: fonts.display,
+                  fontSize: 18,
+                  lineHeight: 20,
+                  flex: 1,
+                  marginTop: 10,
+                  paddingBottom: 4,
+                  borderBottomWidth: 1,
+                  borderBottomColor: colors.brand,
+                  borderStyle: 'dashed',
+                  color: '#000000',
+                }}
+              />
+            ) : (
+              <Display size={18} style={{ marginTop: 10 }}>
+                {selectedSentence}
+              </Display>
+            )}
 
             {/* Sentence audio placeholder */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 8 }}>
@@ -1011,42 +1293,90 @@ function ReviewStep({
           </Body>
         )}
 
-        {/* Bottom row: ✎ edit + Save */}
-        <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
-          <TouchableOpacity
-            style={{
-              width: 56,
-              height: 48,
-              borderRadius: 16,
-              borderWidth: 0.5,
-              borderColor: 'rgba(0,0,0,0.15)',
-              backgroundColor: colors.paperSoft,
-              alignItems: 'center',
-              justifyContent: 'center',
-            }}
-          >
-            <Action tone="muted">✎</Action>
-          </TouchableOpacity>
+        {/* Bottom row: editing mode → Undo + Save edit; normal → ✎ + Save */}
+        {editingSentence ? (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            {/* Undo button — reverts to previousSentence */}
+            <TouchableOpacity
+              onPress={() => {
+                onSentenceEdit(previousSentence);
+                setEditingSentence(false);
+                setEditDraft('');
+              }}
+              style={{
+                width: 80,
+                height: 48,
+                borderRadius: 16,
+                borderWidth: 0.5,
+                borderColor: 'rgba(0,0,0,0.15)',
+                backgroundColor: colors.paperSoft,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Action tone="muted">Undo</Action>
+            </TouchableOpacity>
 
-          <TouchableOpacity
-            onPress={() => onSave(selectedSentence)}
-            disabled={isSaving}
-            style={{
-              flex: 1,
-              backgroundColor: colors.brand,
-              borderRadius: 16,
-              paddingVertical: 14,
-              alignItems: 'center',
-              opacity: isSaving ? 0.6 : 1,
-            }}
-          >
-            {isSaving ? (
-              <ActivityIndicator color="#FFFFFF" />
-            ) : (
-              <Action surface="color">Save</Action>
-            )}
-          </TouchableOpacity>
-        </View>
+            {/* Save edit button — commits editDraft */}
+            <TouchableOpacity
+              onPress={() => {
+                onSentenceEdit(editDraft);
+                setEditingSentence(false);
+              }}
+              style={{
+                flex: 1,
+                backgroundColor: colors.brand,
+                borderRadius: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
+              }}
+            >
+              <Action surface="color">Save edit</Action>
+            </TouchableOpacity>
+          </View>
+        ) : (
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 16 }}>
+            {/* ✎ edit button — enters editing mode */}
+            <TouchableOpacity
+              onPress={() => {
+                setEditingSentence(true);
+                setEditDraft(selectedSentence);
+                setPreviousSentence(selectedSentence);
+              }}
+              style={{
+                width: 56,
+                height: 48,
+                borderRadius: 16,
+                borderWidth: 0.5,
+                borderColor: 'rgba(0,0,0,0.15)',
+                backgroundColor: colors.paperSoft,
+                alignItems: 'center',
+                justifyContent: 'center',
+              }}
+            >
+              <Action tone="muted">✎</Action>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => onSave(selectedSentence)}
+              disabled={isSaving}
+              style={{
+                flex: 1,
+                backgroundColor: colors.brand,
+                borderRadius: 16,
+                paddingVertical: 14,
+                alignItems: 'center',
+                opacity: isSaving ? 0.6 : 1,
+              }}
+            >
+              {isSaving ? (
+                <ActivityIndicator color="#FFFFFF" />
+              ) : (
+                <Action surface="color">Save</Action>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
     </ScrollView>
   );

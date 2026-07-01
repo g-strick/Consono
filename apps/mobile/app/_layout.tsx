@@ -1,5 +1,6 @@
 import '../global.css';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import { useEffect, useState } from 'react';
@@ -53,18 +54,21 @@ export default function RootLayout() {
   }
 
   return (
-    <QueryClientProvider client={queryClient}>
-      <ThemeContext.Provider value={{ surface, setSurface }}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen
-            name="review/index"
-            options={{ headerShown: false, presentation: 'fullScreenModal' }}
-          />
-          <Stack.Screen name="streak/index" options={{ title: 'Your streak' }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </ThemeContext.Provider>
-    </QueryClientProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <QueryClientProvider client={queryClient}>
+        <ThemeContext.Provider value={{ surface, setSurface }}>
+          <Stack>
+            <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+            <Stack.Screen
+              name="review/index"
+              options={{ headerShown: false, presentation: 'fullScreenModal' }}
+            />
+            <Stack.Screen name="streak/index" options={{ title: 'Your streak' }} />
+            <Stack.Screen name="cards/[id]" options={{ title: '' }} />
+          </Stack>
+          <StatusBar style="auto" />
+        </ThemeContext.Provider>
+      </QueryClientProvider>
+    </GestureHandlerRootView>
   );
 }

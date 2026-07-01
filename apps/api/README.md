@@ -41,19 +41,25 @@ curl http://localhost:3000/health
 
 ## API endpoints
 
-| Method | Path            | Description                                                                                    |
-| ------ | --------------- | ---------------------------------------------------------------------------------------------- |
-| `GET`  | `/health`       | Liveness check — returns `{ "ok": true }`                                                      |
-| `POST` | `/generate`     | Generate a pending card (word or sentence) via LLM + image search                              |
-| `POST` | `/cards`        | Approve a pending card, synthesize sentence audio, and persist the final card row              |
-| `GET`  | `/cards/due`    | Fetch all cards due for review right now, ordered by `due_at`                                  |
-| `POST` | `/reviews`      | Submit a review rating (`again`/`hard`/`good`/`easy`); updates FSRS scheduling fields          |
-| `GET`  | `/audio/:hash`  | Serve a local MP3 file from `audio-cache/` by SHA-256 content hash                             |
-| `GET`  | `/users/me`     | Return the current user's profile (`id`, `name`, `audio_speed`)                                |
-| `GET`  | `/home/summary` | Aggregated home screen data: card count, streak, today's stats, next due, recent cards         |
-| `GET`  | `/streak/stats` | Full streak detail for month/year/lifetime periods with heatmap data and best-runs leaderboard |
+| Method   | Path                 | Description                                                                                    |
+| -------- | -------------------- | ---------------------------------------------------------------------------------------------- |
+| `GET`    | `/health`            | Liveness check — returns `{ "ok": true }`                                                      |
+| `POST`   | `/generate/fields`   | Extract word fields from input text via LLM; creates a pending card row                        |
+| `POST`   | `/generate/images`   | Search Pexels images for a pending card; sets status to `ready_for_review`                     |
+| `POST`   | `/cards`             | Approve a pending card, synthesize sentence audio, and persist the final card row              |
+| `GET`    | `/cards`             | List all cards for the user, newest-first (includes suspended cards)                           |
+| `GET`    | `/cards/due`         | Fetch all cards due for review right now, ordered by `due_at` (excludes suspended)             |
+| `GET`    | `/cards/:id`         | Fetch a single card by ID for the detail screen                                                |
+| `PATCH`  | `/cards/:id`         | Edit `sentence_pt` and/or `source_tag`; re-synthesizes audio when sentence changes             |
+| `PATCH`  | `/cards/:id/suspend` | Toggle suspension — `{ "suspended": true/false }` sets or clears `suspended_at`                |
+| `DELETE` | `/cards/:id`         | Delete a card and its review history                                                           |
+| `POST`   | `/reviews`           | Submit a review rating (`again`/`hard`/`good`/`easy`); updates FSRS scheduling fields          |
+| `GET`    | `/audio/:hash`       | Serve a local MP3 file from `audio-cache/` by SHA-256 content hash                             |
+| `GET`    | `/users/me`          | Return the current user's profile (`id`, `name`, `audio_speed`)                                |
+| `GET`    | `/home/summary`      | Aggregated home screen data: card count, streak, today's stats, next due, recent cards         |
+| `GET`    | `/streak/stats`      | Full streak detail for month/year/lifetime periods with heatmap data and best-runs leaderboard |
 
-### `POST /generate` body
+### `POST /generate/fields` body
 
 ```json
 {
@@ -62,7 +68,18 @@ curl http://localhost:3000/health
 }
 ```
 
-Returns `{ "pending_card_id": 42, "draft": { "fields": {...}, "images": [...] } }`.
+Returns `{ "pending_card_id": 42, "fields": { ... } }`. Call `/generate/images` next to attach images and advance to `ready_for_review`.
+
+### `POST /generate/images` body
+
+```json
+{
+  "pending_card_id": 42,
+  "image_search_query": "nostalgia longing"
+}
+```
+
+Returns `{ "images": [...] }`. The pending card is updated to `ready_for_review` status.
 
 ### `POST /cards` body
 
@@ -101,8 +118,8 @@ src/
 ├── seed.ts                     # One-shot seed script — inserts the V0 user row
 ├── backfill-sentence-audio.ts  # One-shot backfill — synthesizes missing sentence audio clips
 ├── routes/
-│   ├── generate.ts             # POST /generate — LLM extraction + Pexels image search
-│   ├── cards.ts                # POST /cards, GET /cards/due — card approval + due queue
+│   ├── generate.ts             # POST /generate/fields, POST /generate/images — LLM extraction + Pexels image search (two-step)
+│   ├── cards.ts                # POST/GET /cards, GET/PATCH/DELETE /cards/:id, PATCH /cards/:id/suspend
 │   ├── reviews.ts              # POST /reviews — FSRS scheduling via ts-fsrs
 │   ├── audio.ts                # GET /audio/:hash — local MP3 file server
 │   ├── users.ts                # GET /users/me — user profile

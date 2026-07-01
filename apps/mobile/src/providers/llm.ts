@@ -4,6 +4,8 @@ import {
   WordFieldsOutputSchema,
 } from '../../../../prompts/card-generation/extract-word-fields.js';
 
+export type { WordFieldsOutput };
+
 const ENDPOINT = 'https://openrouter.ai/api/v1/messages';
 const MODEL = 'google/gemini-2.5-flash-lite';
 

@@ -36,21 +36,34 @@ export interface ImageResult {
   attribution: string;
 }
 
+/** Full set of AI-generated word fields, including image_search_query for re-fetch. */
+export interface WordFields {
+  lemma: string;
+  gender: 'masculine' | 'feminine' | 'common';
+  gendered_form: string;
+  stress_marker: string;
+  usage_context: string;
+  register_tag: 'formal' | 'neutral' | 'informal' | 'slang' | 'vulgar';
+  sounds_like: string | null;
+  image_search_query: string;
+  sentence_candidates: [string, string, string, string];
+}
+
 export interface GenerateDraft {
   pending_card_id: number;
   draft: {
-    fields: {
-      lemma: string;
-      gender: 'masculine' | 'feminine' | 'common';
-      gendered_form: string;
-      stress_marker: string;
-      usage_context: string;
-      register_tag: 'formal' | 'neutral' | 'informal' | 'slang' | 'vulgar';
-      sounds_like: string | null;
-      sentence_candidates: [string, string, string, string];
-    };
+    fields: WordFields;
     images: ImageResult[];
   };
+}
+
+export interface GenerateFieldsResult {
+  pending_card_id: number;
+  fields: WordFields;
+}
+
+export interface GenerateImagesResult {
+  images: ImageResult[];
 }
 
 export interface DueCard {
@@ -69,6 +82,17 @@ export interface DueCard {
   sentence_audio_url: string | null;
   state: 'new' | 'learning' | 'review' | 'relearning';
   due_at: string;
+}
+
+export interface AllCard extends DueCard {
+  source_tag: string | null;
+  stability: number | null;
+  difficulty: number | null;
+  reps: number;
+  lapses: number;
+  last_reviewed_at: string | null;
+  created_at: string;
+  suspended_at: string | null;
 }
 
 export interface Me {
@@ -198,6 +222,20 @@ export const api = {
     });
   },
 
+  generateFields(input_text: string, kind: CardKind) {
+    return request<GenerateFieldsResult>('/generate/fields', {
+      method: 'POST',
+      body: JSON.stringify({ input_text, kind }),
+    });
+  },
+
+  generateImages(pending_card_id: number, image_search_query: string) {
+    return request<GenerateImagesResult>('/generate/images', {
+      method: 'POST',
+      body: JSON.stringify({ pending_card_id, image_search_query }),
+    });
+  },
+
   approveCard(body: {
     pending_card_id: number;
     selected_image_url: string;
@@ -208,12 +246,51 @@ export const api = {
       usage_context?: string;
       sounds_like?: string | null;
       sentence_gloss_en?: string;
+      source_tag?: string;
     };
   }) {
     return request<{ card_id: number }>('/cards', {
       method: 'POST',
       body: JSON.stringify(body),
     });
+  },
+
+  getAllCards() {
+    return request<{ cards: AllCard[] }>('/cards').then(({ cards }) => ({
+      cards: cards.map((c) => ({
+        ...c,
+        audio_url: c.audio_url ? `${BASE}${c.audio_url}` : null,
+        sentence_audio_url: c.sentence_audio_url ? `${BASE}${c.sentence_audio_url}` : null,
+      })),
+    }));
+  },
+
+  getCard(id: number) {
+    return request<{ card: AllCard }>(`/cards/${id}`).then(({ card }) => ({
+      card: {
+        ...card,
+        audio_url: card.audio_url ? `${BASE}${card.audio_url}` : null,
+        sentence_audio_url: card.sentence_audio_url ? `${BASE}${card.sentence_audio_url}` : null,
+      },
+    }));
+  },
+
+  updateCard(id: number, patch: { sentence_pt?: string; source_tag?: string | null }) {
+    return request<{ card: AllCard }>(`/cards/${id}`, {
+      method: 'PATCH',
+      body: JSON.stringify(patch),
+    });
+  },
+
+  suspendCard(id: number, suspend: boolean) {
+    return request<{ ok: boolean }>(`/cards/${id}/suspend`, {
+      method: 'PATCH',
+      body: JSON.stringify({ suspended: suspend }),
+    });
+  },
+
+  deleteCard(id: number) {
+    return request<{ ok: boolean }>(`/cards/${id}`, { method: 'DELETE' });
   },
 
   getDueCards() {

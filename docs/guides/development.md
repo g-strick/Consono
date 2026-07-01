@@ -38,21 +38,24 @@ Metro provides Fast Refresh for the React Native mobile app — saving a file in
 
 All common tasks are available as Makefile targets. Run `make help` for the full list.
 
-| Command            | What it does                                                      |
-| ------------------ | ----------------------------------------------------------------- |
-| `make install`     | Install all workspace dependencies via pnpm                       |
-| `make api`         | Start the Hono API server (port 3000, no watch)                   |
-| `make mobile`      | Start Expo / Metro bundler (Fast Refresh)                         |
-| `make api-seed`    | Insert the hardcoded V0 user row (run once after first migration) |
-| `make test`        | Run unit tests with Vitest                                        |
-| `make typecheck`   | `tsc --noEmit` across all workspaces in parallel                  |
-| `make lint`        | ESLint + markdownlint + cspell                                    |
-| `make format`      | Prettier write pass over the whole repo                           |
-| `make check`       | `typecheck` + `lint` + `test` (same as CI)                        |
-| `make db-generate` | Generate SQL migration from schema changes                        |
-| `make db-migrate`  | Apply pending migrations to the Supabase database                 |
-| `make db-studio`   | Open Drizzle Studio browser UI                                    |
-| `make clean`       | Remove `node_modules`, `dist`, `build`, `.expo`, `coverage`       |
+| Command                 | What it does                                                      |
+| ----------------------- | ----------------------------------------------------------------- |
+| `make install`          | Install all workspace dependencies via pnpm                       |
+| `make api`              | Start the Hono API server (port 3000, no watch)                   |
+| `make mobile`           | Start Expo / Metro bundler (Fast Refresh)                         |
+| `make api-seed`         | Insert the hardcoded V0 user row (run once after first migration) |
+| `make test`             | Run unit tests with Vitest                                        |
+| `make typecheck`        | `tsc --noEmit` across all workspaces in parallel                  |
+| `make lint`             | ESLint + markdownlint + cspell                                    |
+| `make format`           | Prettier write pass over the whole repo                           |
+| `make check`            | `typecheck` + `lint` + `test` (same as CI)                        |
+| `make db-generate`      | Generate SQL migration from schema changes                        |
+| `make db-migrate`       | Apply pending migrations to the Supabase database                 |
+| `make db-studio`        | Open Drizzle Studio browser UI                                    |
+| `make ingest-frequency` | Rebuild the frequency list from the corpus                        |
+| `make prewarm-audio`    | Generate TTS audio for top-N high-frequency words                 |
+| `make validate-prompts` | Check prompt files match their declared input/output schemas      |
+| `make clean`            | Remove `node_modules`, `dist`, `build`, `.expo`, `coverage`       |
 
 The `make check` target runs the same sequence as CI. Run it before opening a PR.
 
@@ -138,6 +141,14 @@ API imports use `.js` extensions (required for Node ESM). Mobile imports use ext
 1. Create `apps/mobile/app/{name}/index.tsx` with `export default`.
 2. Register in `apps/mobile/app/_layout.tsx` as `<Stack.Screen name="{name}/index" ... />`.
 3. Navigate to it with `router.push('/{name}')`.
+
+For **dynamic route segments** (e.g., a detail screen keyed by ID):
+
+1. Create `apps/mobile/app/{name}/[id].tsx` with `export default`. Read the param with `useLocalSearchParams<{ id: string }>()`.
+2. Register in `apps/mobile/app/_layout.tsx` as `<Stack.Screen name="{name}/[id]" ... />`.
+3. Navigate with `router.push('/{name}/123')`.
+
+The card detail screen (`apps/mobile/app/cards/[id].tsx`, registered as `cards/[id]`) is the canonical example.
 
 ### New reusable component
 

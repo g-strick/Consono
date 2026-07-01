@@ -97,34 +97,36 @@ Content-addressed audio store. The primary key is a SHA-256 hash of `text + prov
 
 The core reviewable unit. `card_kind` discriminates `word` vs `sentence` cards. Word-specific fields are null for sentence cards.
 
-| Column                     | Type           | Notes                                     |
-| -------------------------- | -------------- | ----------------------------------------- |
-| `id`                       | `serial` PK    |                                           |
-| `user_id`                  | `uuid`         | FK → `users.id`                           |
-| `card_kind`                | `card_kind`    | `word` or `sentence`                      |
-| `lemma_id`                 | `integer`      | FK → `lemmas.id`, null for sentence cards |
-| `headword`                 | `text`         | Word cards only                           |
-| `gendered_form`            | `text`         | Word cards only                           |
-| `gender`                   | `gender`       | Word cards only                           |
-| `stress_marker`            | `text`         | Word cards only                           |
-| `usage_context`            | `text`         | Word cards only                           |
-| `register_tag`             | `register_tag` | Word cards only                           |
-| `sounds_like`              | `text`         | English cognate/memory hook, null if none |
-| `image_url`                | `text`         | Shared                                    |
-| `image_attribution`        | `text`         | Shared                                    |
-| `audio_clip_hash`          | `text`         | FK → `audio_clips.content_hash`           |
-| `sentence_pt`              | `text`         | Portuguese example sentence               |
-| `sentence_audio_clip_hash` | `text`         | Audio for the example sentence            |
-| `sentence_gloss_en`        | `text`         | English gloss, hidden in review UI        |
-| `due_at`                   | `timestamp`    | FSRS next review time                     |
-| `stability`                | `real`         | FSRS stability value                      |
-| `difficulty`               | `real`         | FSRS difficulty value                     |
-| `state`                    | `card_state`   | FSRS state, default `new`                 |
-| `reps`                     | `integer`      | Total review count, default `0`           |
-| `lapses`                   | `integer`      | Lapse count, default `0`                  |
-| `last_reviewed_at`         | `timestamp`    | Nullable                                  |
-| `created_at`               | `timestamp`    |                                           |
-| `updated_at`               | `timestamp`    |                                           |
+| Column                     | Type           | Notes                                                                           |
+| -------------------------- | -------------- | ------------------------------------------------------------------------------- |
+| `id`                       | `serial` PK    |                                                                                 |
+| `user_id`                  | `uuid`         | FK → `users.id`                                                                 |
+| `card_kind`                | `card_kind`    | `word` or `sentence`                                                            |
+| `lemma_id`                 | `integer`      | FK → `lemmas.id`, null for sentence cards                                       |
+| `headword`                 | `text`         | Word cards only                                                                 |
+| `gendered_form`            | `text`         | Word cards only                                                                 |
+| `gender`                   | `gender`       | Word cards only                                                                 |
+| `stress_marker`            | `text`         | Word cards only                                                                 |
+| `usage_context`            | `text`         | Word cards only                                                                 |
+| `register_tag`             | `register_tag` | Word cards only                                                                 |
+| `sounds_like`              | `text`         | English cognate/memory hook, null if none                                       |
+| `image_url`                | `text`         | Shared                                                                          |
+| `image_attribution`        | `text`         | Shared                                                                          |
+| `audio_clip_hash`          | `text`         | FK → `audio_clips.content_hash`                                                 |
+| `sentence_pt`              | `text`         | Portuguese example sentence                                                     |
+| `sentence_audio_clip_hash` | `text`         | Audio for the example sentence                                                  |
+| `sentence_gloss_en`        | `text`         | English gloss, hidden in review UI                                              |
+| `source_tag`               | `text`         | Where the user encountered this sentence (e.g. `whatsapp`, `netflix`). Nullable |
+| `due_at`                   | `timestamp`    | FSRS next review time                                                           |
+| `stability`                | `real`         | FSRS stability value                                                            |
+| `difficulty`               | `real`         | FSRS difficulty value                                                           |
+| `state`                    | `card_state`   | FSRS state, default `new`                                                       |
+| `reps`                     | `integer`      | Total review count, default `0`                                                 |
+| `lapses`                   | `integer`      | Lapse count, default `0`                                                        |
+| `last_reviewed_at`         | `timestamp`    | Nullable                                                                        |
+| `suspended_at`             | `timestamp`    | Set when card is suspended; null means active                                   |
+| `created_at`               | `timestamp`    |                                                                                 |
+| `updated_at`               | `timestamp`    |                                                                                 |
 
 #### `reviews`
 
