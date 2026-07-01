@@ -2,15 +2,15 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: executing
-stopped_at: 'Phase 02 COMPLETE — UAT 5/5 approved on device (real streak count + at-risk→continued 280ms fill, audio-only front, per-tap 🐢 slow replay ~0.7x, cobalt done, Home cache refresh). All 3 plans done (02-01 endpoint, 02-02 home wiring, 02-03 review streak + slow audio). Ready for next phase.'
-last_updated: '2026-06-22T18:00:00.000Z'
+status: planned
+stopped_at: Planned Phase 04 — Add Wizard Polish (4 plans)
+last_updated: '2026-06-24T19:00:00.000Z'
 progress:
   total_phases: 9
-  completed_phases: 2
-  total_plans: 9
-  completed_plans: 8
-  percent: 22
+  completed_phases: 3
+  total_plans: 18
+  completed_plans: 12
+  percent: 33
 ---
 
 # LingoCards — Project State
@@ -20,15 +20,34 @@ progress:
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 02 — review-loop-home-states
+**Current focus:** Phase 04 — add-wizard-polish
 
 ## Current Position
 
-Phase: 02 (review-loop-home-states) — ✓ COMPLETE (UAT 5/5)
-Plan: 3 of 3 done
+Phase: 04 (add-wizard-polish) — READY TO EXECUTE
+Plan: 0 of 4
 
-- **Status:** Phase 02 verified on device; ready to start next phase
-- **Progress:** [██░░░░░░░░] 22% (2/9 phases)
+- **Status:** Phase 04 planned — ready to execute
+- **Progress:** [███░░░░░░░] 33%
+
+## Phase 4 Status — Planned (Ready to Execute)
+
+| Plan | Description                                                                               | Status    |
+| ---- | ----------------------------------------------------------------------------------------- | --------- |
+| 4.1  | Split /generate into /fields + /images; live LoadingStep pipeline; PickImageStep "↻ more" | ○ Pending |
+| 4.2  | Sentence inline editing in ReviewStep with undo + audio re-generate                       | ○ Pending |
+| 4.3  | Source tagging chips + clipboard auto-detect (DB migration required)                      | ○ Pending |
+| 4.4  | Recent words in InputStep from /home/summary recentCards                                  | ○ Pending |
+
+## Phase 3 Status — ✓ Complete
+
+| Plan | Description                                                      | Status     |
+| ---- | ---------------------------------------------------------------- | ---------- |
+| 3.1  | Pure streakStats.ts lib (retention, personal bests, heat levels) | ✓ Complete |
+| 3.2  | GET /streak/stats route + mobile getStreakStats() client         | ✓ Complete |
+| 3.3  | Wire streak/index.tsx to real data                               | ✓ Complete |
+| 3.4  | App-wide DSGN-02 cobalt body-copy audit + fixes                  | ✓ Complete |
+| 3.5  | DSGN-01 OLED isOledSurface predicate + truth-table test          | ✓ Complete |
 
 ## Phase 2 Status — ✓ Complete (UAT 5/5)
 
@@ -64,6 +83,8 @@ Plan: 3 of 3 done
 - Reviews scoped via inArray(card_id, userCardIds) since reviews table has no user_id (T-02-01)
 - recentCards = 3 most-recently-created by created_at desc, not due cards (D-08)
 - nextDueAt = earliest future due_at via gt(due_at, now) ordered asc (D-12)
+- isOledSurface predicate extracted from useNightSurface — pure fn enables unit testing without React render env (Plan 03-05)
+- vi.mock('react-native') pattern for testing RN-importing modules under vitest/node (Plan 03-05)
 
 ## Blockers / Concerns
 
@@ -71,8 +92,15 @@ Plan: 3 of 3 done
 
 ## Session Continuity
 
-Last session: 2026-06-22T17:33:36.614Z
-Stopped at: Completed 02-01-PLAN.md — GET /home/summary endpoint, pure streak/today-stats
-logic (15 vitest tests pass), mobile getHomeSummary() client method.
-Next: Execute 02-02-PLAN.md (Home screen real data wiring).
-Resume file: None
+Last session: 2026-06-24T19:00:00.000Z
+Stopped at: Planned Phase 04 — 4 plans written for Add Wizard Polish
+Next: Execute 04-01-PLAN.md (split /generate into /fields + /images; live pipeline LoadingStep; PickImageStep ↻ more).
+Resume file: .planning/phases/04-add-wizard-polish/04-01-PLAN.md
+
+## Decisions
+
+- [Phase ?]: computeRetention returns fraction 0-1; route formats as percentage
+- [Phase ?]: computeBestRuns returns [] on no reviews; route renders empty-state row
+- [Phase ?]: inWindow is inclusive at both ends (local-day-key granularity) - Plan 02 must match
+- [Phase 03-02]: lifetime.longestStreak = max days from computeBestRuns all-time, not computeStreak (which is current-only)
+- [Phase 03-02]: retention returned as integer % 0-100 via Math.round(fraction × 100) for hero + all periods

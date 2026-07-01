@@ -21,22 +21,31 @@ import { useColorScheme } from 'react-native';
 import type { Surface } from '@/src/lib/theme';
 
 /**
- * Night window: 19:00 (7 PM) to 05:59 (5:59 AM inclusive).
- * Reads `new Date().getHours()` once per render (no timer needed for Phase 1).
+ * Pure predicate for the DSGN-01 OLED night-trigger condition.
+ *
+ * Returns `true` when the system is in dark mode AND the current hour is
+ * within the night window (≥ 19:00 or < 06:00).
+ *
+ * Extracted from the private `isNightHour()` to allow unit-testing the full
+ * truth table without a React render environment.
+ *
+ * @param colorScheme - The system color scheme ('light' | 'dark' | null | undefined)
+ * @param hour - The current hour (0–23)
  */
-function isNightHour(): boolean {
-  const hour = new Date().getHours();
-  return hour >= 19 || hour < 6;
+export function isOledSurface(
+  colorScheme: 'light' | 'dark' | null | undefined,
+  hour: number,
+): boolean {
+  return colorScheme === 'dark' && (hour >= 19 || hour < 6);
 }
 
 /**
  * Returns `'oled'` when the system is in dark mode AND the current time is
  * within the night window; otherwise returns `'light'`.
+ *
+ * Delegates to `isOledSurface` — same behavior as before, now unit-testable.
  */
 export function useNightSurface(): Surface {
   const colorScheme = useColorScheme();
-  if (colorScheme === 'dark' && isNightHour()) {
-    return 'oled';
-  }
-  return 'light';
+  return isOledSurface(colorScheme, new Date().getHours()) ? 'oled' : 'light';
 }

@@ -144,3 +144,17 @@ make api-seed       # seed the V0 hardcoded user row
 ## License
 
 TBD — must remain permissive when chosen.
+
+## Usage
+
+**Add a new word or sentence**
+
+From the home screen, tap **+ Add a word or sentence** (or navigate to the Add tab). Enter a Portuguese word or sentence — the API calls the LLM to propose images, audio, and i+1 example sentences. Review the draft and approve it to save the card to your deck.
+
+**Daily review**
+
+The home screen shows how many cards are due. Tap **Start review** to enter the review session. Each card presents the Portuguese side; reveal the answer, then rate your recall (Again / Hard / Good / Easy). FSRS schedules the next review automatically.
+
+**Check your streak**
+
+The streak chip in the top-right of the home screen shows your current review streak. Tap it to see a detailed streak breakdown.
