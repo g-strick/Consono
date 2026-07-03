@@ -2,9 +2,9 @@
 
 # apps/mobile
 
-Expo + React Native app for LingoCards — a Portuguese spaced-repetition flashcard app that uses AI to generate word and sentence cards with images, audio, and i+1 example sentences.
+Expo + React Native app for Consono — a Portuguese spaced-repetition flashcard app that uses AI to generate word and sentence cards with images, audio, and i+1 example sentences.
 
-Part of the [LingoCards monorepo](../../README.md).
+Part of the [Consono monorepo](../../README.md).
 
 ## How to run
 
@@ -72,7 +72,7 @@ apps/mobile/
 │   │   └── image-search.ts     # Pexels API — image search for card images
 │   └── index.ts                # Package stub (empty export)
 ├── assets/images/              # App icons, splash screen, favicon
-├── app.json                    # Expo config (name: LingoCards, slug: lingocards)
+├── app.json                    # Expo config (name: Consono, slug: consono)
 ├── babel.config.cjs            # Babel — expo preset with NativeWind jsxImportSource
 ├── metro.config.cjs            # Metro bundler config
 ├── tailwind.config.js          # NativeWind / Tailwind config with brand color tokens

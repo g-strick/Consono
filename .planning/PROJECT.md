@@ -1,4 +1,4 @@
-# LingoCards
+# Consono
 
 ## What This Is
 

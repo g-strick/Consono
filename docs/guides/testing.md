@@ -2,7 +2,7 @@
 
 # Testing
 
-This guide covers the test setup, how to run tests, and how to write new tests for the LingoCards monorepo.
+This guide covers the test setup, how to run tests, and how to write new tests for the Consono monorepo.
 
 ## Test Framework and Setup
 

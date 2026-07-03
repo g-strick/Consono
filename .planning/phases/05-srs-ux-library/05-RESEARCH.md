@@ -810,12 +810,12 @@ enabled.
 
 ### Test Framework
 
-| Property           | Value                                                         |
-| ------------------ | ------------------------------------------------------------- |
-| Framework          | vitest ^3                                                     |
-| Config file        | `/Users/graysonstricker/Programs/LingoCards/vitest.config.ts` |
-| Quick run command  | `corepack pnpm exec vitest run apps/api/src/lib/`             |
-| Full suite command | `corepack pnpm test` (alias: `make test`)                     |
+| Property           | Value                                                      |
+| ------------------ | ---------------------------------------------------------- |
+| Framework          | vitest ^3                                                  |
+| Config file        | `/Users/graysonstricker/Programs/Consono/vitest.config.ts` |
+| Quick run command  | `corepack pnpm exec vitest run apps/api/src/lib/`          |
+| Full suite command | `corepack pnpm test` (alias: `make test`)                  |
 
 ### Phase Requirements → Test Map
 

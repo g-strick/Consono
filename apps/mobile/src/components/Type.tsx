@@ -1,5 +1,5 @@
 /**
- * Type.tsx — Surface-driven text primitives for LingoCards v6.
+ * Type.tsx — Surface-driven text primitives for Consono v6.
  *
  * Rule: "text follows the surface, not the brand."
  * Cobalt (brand) is reserved for brand-emphasis text (big numbers, key

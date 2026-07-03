@@ -1,4 +1,4 @@
-# LingoCards Roadmap
+# Consono Roadmap
 
 **Created:** 2026-06-02
 **Phases:** 7 (+1 inserted: 1.1) | **Requirements:** 35

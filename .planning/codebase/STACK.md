@@ -98,7 +98,7 @@
 
 **Build:**
 
-- `app.json` (`apps/mobile/`) — Expo app config: bundle IDs `com.lingocards.app` (iOS + Android), scheme `lingocards`, `newArchEnabled: true`
+- `app.json` (`apps/mobile/`) — Expo app config: bundle IDs `com.consono.app` (iOS + Android), scheme `consono`, `newArchEnabled: true`
 - `tailwind.config.js` (`apps/mobile/`) — NativeWind preset with custom brand tokens
 
 ## Monorepo Structure
@@ -125,7 +125,7 @@ move without updating all imports).
 
 **Production:**
 
-- Mobile: Expo build pipeline targeting iOS (`com.lingocards.app`) and Android (`com.lingocards.app`)
+- Mobile: Expo build pipeline targeting iOS (`com.consono.app`) and Android (`com.consono.app`)
 - API: Node.js 22.x server (Hono `fetch`-based — portable to edge runtimes in future)
 - Database: Supabase-hosted PostgreSQL (free tier at V0; see ADR 0007)
 

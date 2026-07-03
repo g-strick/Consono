@@ -1,19 +1,19 @@
 {
   "expo": {
-    "name": "LingoCards",
-    "slug": "lingocards",
+    "name": "Consono",
+    "slug": "consono",
     "version": "0.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "lingocards",
+    "scheme": "consono",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.lingocards.app"
+      "bundleIdentifier": "com.consono.app"
     },
     "android": {
-      "package": "com.lingocards.app",
+      "package": "com.consono.app",
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/android-icon-foreground.png",
         "backgroundColor": "#1F3494"

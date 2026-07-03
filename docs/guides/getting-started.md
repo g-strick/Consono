@@ -22,8 +22,8 @@ Before you begin, make sure you have the following installed:
 **1. Clone the repository.**
 
 ```bash
-git clone https://github.com/g-strick/LingoCards.git
-cd LingoCards
+git clone https://github.com/g-strick/Consono.git
+cd Consono
 ```
 
 **2. Install all workspace dependencies.**
@@ -116,7 +116,7 @@ EXPO_PUBLIC_API_URL=http://192.168.1.42:3000 make mobile
 1. Open **Expo Go** on your phone.
 2. Tap **Scan QR Code**.
 3. Scan the QR code printed by Metro in Terminal 2.
-4. The LingoCards app loads on your device. The home screen shows cards due for review.
+4. The Consono app loads on your device. The home screen shows cards due for review.
 
 Your phone and development machine must be on the same Wi-Fi network. The auto-resolved LAN IP handles routing — no manual URL configuration is needed.
 

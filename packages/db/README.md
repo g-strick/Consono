@@ -2,9 +2,9 @@
 
 # @portuguese-app/db
 
-Drizzle ORM schema and database client for the LingoCards monorepo. This package owns the PostgreSQL schema, migration files, and exports a typed `db` client used by all server-side consumers (primarily `apps/api`).
+Drizzle ORM schema and database client for the Consono monorepo. This package owns the PostgreSQL schema, migration files, and exports a typed `db` client used by all server-side consumers (primarily `apps/api`).
 
-Part of the [LingoCards monorepo](../../README.md).
+Part of the [Consono monorepo](../../README.md).
 
 ---
 

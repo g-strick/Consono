@@ -1,6 +1,6 @@
 <!-- generated-by: gsd-doc-writer -->
 
-# LingoCards
+# Consono
 
 AI-native Brazilian Portuguese learning app — Fluent Forever-style, personal daily driver first.
 

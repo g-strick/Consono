@@ -2,7 +2,7 @@
 
 # @portuguese-app/api
 
-Hono-on-Node.js REST API for LingoCards — handles card generation, spaced-repetition reviews, audio serving, and aggregated home/streak statistics. Part of the [LingoCards monorepo](../../README.md).
+Hono-on-Node.js REST API for Consono — handles card generation, spaced-repetition reviews, audio serving, and aggregated home/streak statistics. Part of the [Consono monorepo](../../README.md).
 
 > **V0 note:** A single hardcoded user ID is used for all requests. Real authentication via Supabase Auth is planned for V1 (ADR-0007).
 

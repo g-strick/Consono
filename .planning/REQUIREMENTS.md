@@ -1,4 +1,4 @@
-# Requirements: LingoCards
+# Requirements: Consono
 
 **Defined:** 2026-06-02
 **Core Value:** The daily review loop must work reliably — audio plays, cards appear on schedule.

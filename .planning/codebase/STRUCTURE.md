@@ -5,7 +5,7 @@
 ## Directory Layout
 
 ```
-LingoCards/                         # Monorepo root
+Consono/                         # Monorepo root
 ├── apps/
 │   ├── api/                        # Hono API server (Node.js)
 │   │   └── src/

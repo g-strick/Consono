@@ -2,7 +2,7 @@
 
 # Configuration
 
-This guide covers all environment variables, config files, and runtime options for the LingoCards monorepo. The project has two server-side workspaces that need configuration (`apps/api` and `packages/db`) and one mobile workspace (`apps/mobile`) that reads a single optional variable at build time.
+This guide covers all environment variables, config files, and runtime options for the Consono monorepo. The project has two server-side workspaces that need configuration (`apps/api` and `packages/db`) and one mobile workspace (`apps/mobile`) that reads a single optional variable at build time.
 
 ## Environment Variables
 
@@ -65,15 +65,15 @@ For production deployments, inject variables through the hosting platform's secr
 
 The Expo configuration file. Key values:
 
-| Key                         | Value                | Notes                                 |
-| --------------------------- | -------------------- | ------------------------------------- |
-| `expo.name`                 | `LingoCards`         | Display name                          |
-| `expo.slug`                 | `lingocards`         | URL slug for Expo services            |
-| `expo.scheme`               | `lingocards`         | Deep-link URL scheme                  |
-| `expo.ios.bundleIdentifier` | `com.lingocards.app` | iOS bundle ID                         |
-| `expo.android.package`      | `com.lingocards.app` | Android package name                  |
-| `expo.newArchEnabled`       | `true`               | React Native new architecture enabled |
-| `expo.userInterfaceStyle`   | `light`              | Light mode only at V0                 |
+| Key                         | Value             | Notes                                 |
+| --------------------------- | ----------------- | ------------------------------------- |
+| `expo.name`                 | `Consono`         | Display name                          |
+| `expo.slug`                 | `consono`         | URL slug for Expo services            |
+| `expo.scheme`               | `consono`         | Deep-link URL scheme                  |
+| `expo.ios.bundleIdentifier` | `com.consono.app` | iOS bundle ID                         |
+| `expo.android.package`      | `com.consono.app` | Android package name                  |
+| `expo.newArchEnabled`       | `true`            | React Native new architecture enabled |
+| `expo.userInterfaceStyle`   | `light`           | Light mode only at V0                 |
 
 This file is static — no runtime substitution occurs. Build-time Expo variables (`EXPO_PUBLIC_*`) are handled by Expo's environment variable system, separate from `app.json`.
 

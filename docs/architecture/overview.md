@@ -13,7 +13,7 @@ and browser.
 Three pnpm workspaces managed from the project root:
 
 ```
-LingoCards/
+Consono/
 ├── apps/
 │   ├── api/          # @portuguese-app/api — Hono HTTP server (port 3000)
 │   └── mobile/       # @portuguese-app/mobile — Expo + React Native app

@@ -3,32 +3,32 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Phase 5 all 4 plans committed; awaiting human verification
-last_updated: '2026-06-29T03:57:00.000Z'
+stopped_at: Phase 05 all 4 plans committed; awaiting device verification of 05-03 + 05-04
+last_updated: '2026-06-29T20:40:10.065Z'
 progress:
   total_phases: 9
   completed_phases: 4
-  total_plans: 22
-  completed_plans: 22
-  percent: 56
+  total_plans: 30
+  completed_plans: 21
+  percent: 44
 ---
 
-# LingoCards — Project State
+# Consono — Project State
 
 ## Project Reference
 
 See: `.planning/PROJECT.md` (updated 2026-06-20)
 
 **Core value:** Daily review loop — audio plays, cards appear on schedule.
-**Current focus:** Phase 05 — srs-ux-library
+**Current focus:** Phase 06 — auth-cloud-sync
 
 ## Current Position
 
-Phase: 05 (srs-ux-library) — PENDING HUMAN VERIFY
-Plan: 4 of 4 (all committed)
+Phase: 06 (auth-cloud-sync) — EXECUTING
+Plan: 1 of 8
 Next: Human verification of 05-03 (library) + 05-04 (card detail), then Phase 06
 
-- **Status:** Phase 05 all plans committed; checkpoints 05-03 and 05-04 await human device testing
+- **Status:** Executing Phase 06
 - **Progress:** [█████░░░░░] 56%
 
 ## Phase 4 Status — ✓ Complete (2026-06-25)

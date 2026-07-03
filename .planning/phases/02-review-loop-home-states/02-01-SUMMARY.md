@@ -157,9 +157,9 @@ None new beyond what the plan's threat model already covered:
 
 ### Created Files
 
-- [x] `/Users/graysonstricker/Programs/LingoCards/apps/api/src/lib/homeSummary.ts`
-- [x] `/Users/graysonstricker/Programs/LingoCards/apps/api/src/lib/homeSummary.test.ts`
-- [x] `/Users/graysonstricker/Programs/LingoCards/apps/api/src/routes/home.ts`
+- [x] `/Users/graysonstricker/Programs/Consono/apps/api/src/lib/homeSummary.ts`
+- [x] `/Users/graysonstricker/Programs/Consono/apps/api/src/lib/homeSummary.test.ts`
+- [x] `/Users/graysonstricker/Programs/Consono/apps/api/src/routes/home.ts`
 
 ### Commits
 
