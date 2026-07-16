@@ -112,7 +112,7 @@ Returns `{ "next_due_at": "2026-06-25T09:00:00.000Z" }`.
 
 ## Source layout
 
-```
+```text
 src/
 ├── index.ts                    # Hono app entry point; mounts all routes; starts Node server
 ├── seed.ts                     # One-shot seed script — inserts the V0 user row

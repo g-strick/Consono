@@ -41,7 +41,7 @@ All five secret variables (`DATABASE_URL`, `NARAKEET_API_KEY`, `OPENROUTER_API_K
 
 The `DATABASE_URL` value must be a standard PostgreSQL URI in transaction-mode format. The example value in `.env.example` shows the Supabase pattern:
 
-```
+```text
 postgresql://postgres.[project-ref]:[password]@db.[project-ref].supabase.co:5432/postgres
 ```
 

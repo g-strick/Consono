@@ -20,7 +20,7 @@ auto-generated `.planning/codebase/` docs — read those on demand.
 
 ## Commands
 
-```
+```bash
 pnpm dev         # Expo dev server (apps/mobile)
 pnpm test        # vitest run
 pnpm typecheck   # tsc --noEmit, all packages

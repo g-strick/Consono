@@ -48,6 +48,7 @@
   },
   "private": true,
   "scripts": {
+    "check": "pnpm run lint && pnpm run typecheck && pnpm test",
     "dev": "cd apps/mobile && corepack pnpm dev",
     "format": "prettier --write .",
     "format:check": "prettier --check .",

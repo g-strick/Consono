@@ -125,10 +125,12 @@ API imports use `.js` extensions (required for Node ESM). Mobile imports use ext
 
 1. Create `apps/api/src/routes/{resource}.ts` — export a `new Hono()` instance named `{resource}Route`.
 2. Mount it in `apps/api/src/index.ts`:
+
    ```typescript
    import { {resource}Route } from './routes/{resource}.js';
    app.route('/{resource}', {resource}Route);
    ```
+
 3. Add a typed function for it in `apps/mobile/src/lib/api.ts` so the mobile app can call it.
 
 ### New tab screen (mobile)
@@ -176,16 +178,20 @@ The schema is the single source of truth. DB types and migrations both derive fr
 
 1. Edit `packages/db/src/schema.ts`.
 2. Generate the migration:
+
    ```bash
    make db-generate
    # Writes a new SQL file to packages/db/drizzle/
    ```
+
 3. Review the generated SQL in `packages/db/drizzle/`.
 4. Apply the migration:
+
    ```bash
    make db-migrate
    # Requires DATABASE_URL in .env
    ```
+
 5. Commit both `schema.ts` and the generated migration file.
 
 > Schema changes that affect existing data require an ADR before merging. If a change drops or renames columns, document the migration strategy in `docs/decisions/`.

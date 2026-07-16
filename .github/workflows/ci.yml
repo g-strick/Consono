@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 jobs:
-  check:
+  lint-typecheck:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -17,10 +17,6 @@ jobs:
           node-version-file: '.nvmrc'
 
       - run: corepack enable
-
-      - uses: pnpm/action-setup@v3
-        with:
-          version: 9
 
       - name: Get pnpm store directory
         shell: bash
@@ -39,17 +35,43 @@ jobs:
       - name: Format check
         run: pnpm format:check
 
-      - name: Type check
-        run: pnpm typecheck
-
       - name: Lint
         run: pnpm lint
+
+      - name: Type check
+        run: pnpm typecheck
 
       - name: Markdown lint
         run: pnpm mdlint
 
       - name: Spell check
         run: pnpm spellcheck
+
+  test:
+    runs-on: ubuntu-latest
+    needs: lint-typecheck
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+
+      - run: corepack enable
+
+      - name: Get pnpm store directory
+        shell: bash
+        run: echo "STORE_PATH=$(pnpm store path --silent)" >> $GITHUB_ENV
+
+      - uses: actions/cache@v4
+        with:
+          path: ${{ env.STORE_PATH }}
+          key: ${{ runner.os }}-pnpm-store-${{ hashFiles('**/pnpm-lock.yaml') }}
+          restore-keys: |
+            ${{ runner.os }}-pnpm-store-
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
 
       - name: Test
         run: pnpm test

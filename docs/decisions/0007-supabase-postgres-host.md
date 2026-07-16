@@ -118,4 +118,4 @@ pg_restore`.
 - ADR 0003 (cloud-first sync, audio caching)
 - ADR 0005 (provider boundary architecture)
 - `docs/specs/v0.md` schema — `audio_clips.provider` field
-- Supabase free-tier limits: https://supabase.com/pricing
+- Supabase free-tier limits: <https://supabase.com/pricing>

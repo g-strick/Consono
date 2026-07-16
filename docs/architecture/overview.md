@@ -12,7 +12,7 @@ and browser.
 
 Three pnpm workspaces managed from the project root:
 
-```
+```text
 Consono/
 ├── apps/
 │   ├── api/          # @portuguese-app/api — Hono HTTP server (port 3000)
@@ -148,7 +148,7 @@ A single `api` object wraps every HTTP call to the API server with:
 
 ### `apps/api/src/`
 
-```
+```text
 src/
 ├── index.ts          # Hono app, route mounts, server start
 ├── routes/           # One file per resource group (thin handlers: validate → call → persist)
@@ -173,7 +173,7 @@ Business logic lives in `lib/` so it can be tested without HTTP infrastructure.
 
 ### `apps/mobile/`
 
-```
+```text
 app/                  # Expo Router file-system routing
 ├── _layout.tsx       # Root layout — QueryClientProvider, ThemeContext, font loading
 ├── (tabs)/           # Tab navigator group
@@ -218,7 +218,7 @@ src/
 Six tables in Postgres (Supabase-hosted). Drizzle ORM in `packages/db/src/schema.ts` is the
 single source of truth — migrations and TypeScript types both derive from it.
 
-```
+```text
 users               — Single user at V0 (hardcoded UUID); display_name, audio_speed preference
 lemmas              — One row per canonical dictionary form per user; UNIQUE(user_id, headword)
                       Deduplicates cards across word forms (e.g. falar ← falando)
