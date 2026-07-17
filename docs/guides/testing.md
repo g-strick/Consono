@@ -62,7 +62,7 @@ make check
 
 Tests live **next to the source file they exercise**, not in a separate `tests/` directory. The naming pattern is `{module}.test.ts`.
 
-```
+```text
 apps/api/src/lib/
   homeSummary.ts
   homeSummary.test.ts       ← co-located unit test

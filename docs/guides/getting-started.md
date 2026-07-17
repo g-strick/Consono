@@ -10,10 +10,13 @@ Before you begin, make sure you have the following installed:
 
 - **Node.js 22.x** — the repo pins `22` in `.nvmrc`. Run `nvm use` (nvm) or `fnm install && fnm use` (fnm) from the repo root to switch automatically.
 - **pnpm 11** — the repo uses `pnpm@11.1.2` via Corepack. Enable Corepack once with:
+
   ```bash
   corepack enable
   ```
+
   Corepack will then resolve the exact pnpm version declared in `package.json` without a separate global install.
+
 - **Expo Go** — install on your iOS or Android device from the App Store or Google Play Store. You will use it to load the mobile app over your local Wi-Fi network.
 - **PostgreSQL database** — the API requires a live Postgres connection at startup. A free [Supabase](https://supabase.com) project is the intended host (see `.env.example`). Any Postgres host works as long as you have a valid connection URI.
 
@@ -140,7 +143,7 @@ Find your machine's LAN IP with `ifconfig | grep 'inet '` (macOS/Linux). Do not 
 
 The Makefile uses `corepack pnpm` internally, so pnpm does not need to be on your PATH — but Corepack does. Run `corepack enable` first, then retry.
 
-**Wrong Node version (Corepack or native module errors)**
+### Wrong Node version (Corepack or native module errors)
 
 Run `nvm use` or `fnm use` from the repo root. The `.nvmrc` file pins `22`. Installing dependencies with an incompatible Node version can leave corrupted native binaries in `node_modules`; run `make clean && make install` to rebuild from scratch.
 
