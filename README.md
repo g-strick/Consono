@@ -8,6 +8,51 @@ AI-native Brazilian Portuguese learning app — Fluent Forever-style, personal d
 
 Type a Portuguese word or sentence. The LLM (Gemini 2.5 Flash Lite via OpenRouter) fills in pronunciation, gender, register tag, an i+1 example sentence, and an English memory hook. Pexels provides a contextual image. Narakeet TTS generates native-speaker audio (voice: Felipe). Cards are reviewed daily using FSRS — audio-first, no translation crutch.
 
+## Architecture
+
+Mobile client (Expo) talks to a Hono API backed by Postgres (Supabase/Drizzle) with FSRS scheduling. Every PR runs lint, typecheck, and tests in GitHub Actions.
+
+```mermaid
+flowchart TB
+  subgraph Actors
+    Learner[Learner]
+    Dev[Developer]
+  end
+
+  subgraph Consono["Consono"]
+    App["Expo / React Native"]
+    API["Hono API"]
+    DB[("Supabase Postgres + Drizzle")]
+    FSRS["FSRS v5 scheduler"]
+  end
+
+  subgraph External
+    GHA["GitHub Actions CI"]
+    Pages["Cloudflare Pages"]
+    GH["GitHub"]
+  end
+
+  Learner --> App
+  App --> API
+  API --> DB
+  API --> FSRS
+  Dev --> GH
+  GH --> GHA
+  GHA -->|"lint · typecheck · test"| GH
+  Pages -.->|"marketing URL"| Learner
+```
+
+### CI pipeline
+
+```mermaid
+flowchart LR
+  PR[PR / push to main] --> Lint["lint-typecheck<br/>format · lint · tsc · mdlint · spell"]
+  Lint --> Test[test]
+  Test --> Green[Green check on PR]
+```
+
+Deeper component and data-flow diagrams: [`docs/architecture/overview.md`](docs/architecture/overview.md).
+
 ## Repository layout
 
 ```text
